@@ -291,7 +291,7 @@ export default function AnalyticsPage() {
           <Card className="shadow-sm border-muted">
             <CardHeader className="pb-3 border-b">
               <CardTitle className="text-sm font-semibold flex items-center">
-                <Calendar className="w-4 h-4 mr-2 text-primary" /> Timeline des
+                <Calendar className="w-4 h-4 mr-2 text-foreground" /> Timeline des
                 Bilans
               </CardTitle>
             </CardHeader>
