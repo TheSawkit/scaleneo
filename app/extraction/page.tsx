@@ -75,11 +75,16 @@ export default function ExtractionPage() {
   );
 }
 
-function getAllKeysCount(obj: any): number {
+function getAllKeysCount(obj: PatientData): number {
   let count = 0;
   for (const key in obj) {
-    if (typeof obj[key] === "object" && obj[key] !== null) {
-      count += Object.keys(obj[key]).length;
+    const section = obj[key as keyof PatientData];
+    if (
+      typeof section === "object" &&
+      section !== null &&
+      !Array.isArray(section)
+    ) {
+      count += Object.keys(section).length;
     }
   }
   return count;

@@ -22,7 +22,7 @@ export function RedFlagsAlert({ data }: RedFlagsAlertProps) {
               Pas de drapeau rouge détecté
             </h3>
             <p className="text-green-700 text-xs mt-1">
-              Aucun critère d'alerte identifié dans ce bilan.
+              Aucun critère d&apos;alerte identifié dans ce bilan.
             </p>
           </div>
         </CardContent>
@@ -43,7 +43,7 @@ export function RedFlagsAlert({ data }: RedFlagsAlertProps) {
 
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {Object.entries(flags).map(([key, flag]: [string, any]) => (
+          {Object.entries(flags).map(([key, flag]) => (
             <div
               key={key}
               className={cn(

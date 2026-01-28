@@ -45,8 +45,11 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
   };
 
   const handleFile = (file: File) => {
-    if (file.type !== "text/plain") {
-      setError("Veuillez télécharger un fichier .txt");
+    const isJsonMime = file.type === "application/json";
+    const isJsonExt = file.name.toLowerCase().endsWith(".json");
+
+    if (!isJsonMime && !isJsonExt) {
+      setError("Veuillez télécharger un fichier .json");
       return;
     }
     setError(null);
@@ -56,14 +59,24 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
     reader.onload = (e) => {
       const content = e.target?.result as string;
       try {
+        if (content.trim().startsWith("{\\rtf")) {
+          throw new Error(
+            "Format RTF détecté. Veuillez enregistrer au format 'Texte brut' (.json) sans mise en forme.",
+          );
+        }
+
         const data = parsePatientFile(content);
         // Basic validation
         if (!data.admin || Object.keys(data.admin).length === 0) {
-          throw new Error("Structure invalide");
+          throw new Error("Format JSON invalide ou structure manquante.");
         }
         onDataParsed(data, content);
-      } catch (err) {
-        setError("Erreur de lecture du fichier. Vérifiez le format.");
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Erreur de lecture du fichier. Vérifiez le format.";
+        setError(errorMessage);
         console.error(err);
       }
     };
@@ -111,7 +124,7 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
                     Glissez-déposez ou cliquez ici
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Format supporté: .txt
+                    Format supporté: .json
                   </p>
                 </>
               )}
@@ -121,7 +134,7 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
               id="file-upload"
               type="file"
               className="hidden"
-              accept=".txt"
+              accept=".json"
               onChange={handleChange}
             />
 

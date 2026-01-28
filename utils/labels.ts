@@ -12,8 +12,8 @@ export const FIELD_LABELS: Record<string, Record<string, string>> = {
     idBilan: "ID BILAN",
   },
   anthropo: {
-    poids: "POIDS (KG)",
-    taille: "TAILLE (CM)",
+    poids: "POIDS",
+    taille: "TAILLE",
     imc: "IMC CALCULÉ",
   },
   pathologie: {
@@ -22,7 +22,7 @@ export const FIELD_LABELS: Record<string, Record<string, string>> = {
     traumatisme: "TRAUMATISME",
     recidive: "RÉCIDIVE",
     pireEpisode: "PIRE EPISODE",
-    duree: "DURÉE TOTALE LBP (MOIS)",
+    duree: "DURÉE TOTALE LBP",
     type: "TYPE LBP",
   },
   symptomes: {
@@ -91,7 +91,6 @@ export const FIELD_LABELS: Record<string, Record<string, string>> = {
   },
   redFlags: {
     detectes: "DRAPEAUX ROUGES DÉTECTÉS",
-    lesquels: "SI OUI, LESQUELS",
     contraindications: "CONTRE-INDICATIONS",
     allergies: "ALLERGIES",
     medications: "MÉDICATIONS PERTINENTES",
@@ -112,12 +111,9 @@ export const FIELD_LABELS: Record<string, Record<string, string>> = {
   gestion: {
     frequence: "FRÉQUENCE THÉRAPIE",
     therapieManuelle: "THÉRAPIE MANUELLE",
-    typesMT: "TYPES TM SI OUI",
     exercice: "THÉRAPIE PAR EXERCICE",
-    typesExercice: "TYPES EXERCICES",
     neurodynamique: "THÉRAPIE PAR NEURODYNAMIQUE",
     education: "ÉDUCATION PATIENT",
-    sujetsEducation: "SUJETS ÉDUCATION",
     modalites: "MODALITÉS SUPPLÉMENTAIRES",
   },
   perspectives: {
@@ -160,11 +156,9 @@ export const FIELD_LABELS: Record<string, Record<string, string>> = {
     styleVie: "FACTEURS DE STYLE DE VIE",
     hormonal: "FACTEURS HORMONAUX/MÉTABOLIQUES",
     posteOptimise: "POSTE OPTIMISÉ",
-    recommandationsErgonomiques: "RECOMMANDATIONS ERGONOMIQUES",
     psychosociaux: "FACTEURS PSYCHOSOCIAUX MAJEURS",
     systemeSante: "SYSTÈME SANTÉ/CULTURE",
     attenteGuerison: "ATTENTE GUÉRISON RAPIDE",
-    approchePreferee: "APPROCHE PRÉFÉRÉE",
     compliance: "COMPLIANCE ANTICIPÉE",
     complianceBarrieres: "BARRIÈRES",
   },
@@ -219,6 +213,6 @@ export const SECTION_LABELS: Record<string, string> = {
   facteurs: "14: FACTEURS CONTRIBUANTS",
   satisfaction: "15: SATISFACTION",
   observations: "16: OBSERVATIONS CLINIQUES & NOTES",
-  hypothese: "17: HYPOTHÈSE DE TRAVAIL (SCALENEO)",
+  hypothese: "17: HYPOTHÈSE DE TRAVAIL",
   qualite: "18: CONTRÔLE QUALITÉ",
 };

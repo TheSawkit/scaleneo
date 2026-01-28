@@ -8,6 +8,13 @@ interface ScoreSummaryProps {
   data: PatientData;
 }
 
+interface ComputedScore {
+  key: string;
+  label: string;
+  value: string | number;
+  interp: ReturnType<typeof interpretScore>;
+}
+
 export function ScoreSummary({ data }: ScoreSummaryProps) {
   const scores = data.scores || {};
   const computedScores = Object.entries(scores)
@@ -20,7 +27,7 @@ export function ScoreSummary({ data }: ScoreSummaryProps) {
       );
       return { key, label: def.label, value, interp };
     })
-    .filter(Boolean);
+    .filter(Boolean) as ComputedScore[];
 
   if (computedScores.length === 0) return null;
 
@@ -33,7 +40,7 @@ export function ScoreSummary({ data }: ScoreSummaryProps) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {computedScores.map((score: any) => (
+          {computedScores.map((score) => (
             <div
               key={score.key}
               className={cn(

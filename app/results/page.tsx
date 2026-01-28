@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RedFlagsAlert } from "@/components/dashboard/RedFlagsAlert";
 import { ScoreSummary } from "@/components/dashboard/ScoreSummary";
 import { HypothesisView } from "@/components/dashboard/HypothesisView";
-import { FIELD_LABELS, SECTION_LABELS } from "@/utils/labels";
-import { Badge } from "@/components/ui/badge";
+import { SectionCard } from "@/components/dashboard/SectionCard";
 
 export default function ResultsPage() {
   const { patientData } = usePatient();
@@ -14,7 +13,7 @@ export default function ResultsPage() {
   if (!patientData) {
     return (
       <div className="text-center py-20 bg-muted/30 rounded-xl border border-dashed border-border text-muted-foreground animate-in fade-in-50">
-        Veuillez d'abord charger un fichier dans l'onglet Extraction.
+        Veuillez d&apos;abord charger un fichier dans l&apos;onglet Extraction.
       </div>
     );
   }
@@ -41,68 +40,6 @@ export default function ResultsPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-function SectionCard({ title, data }: { title: string; data: any }) {
-  if (!data || Object.keys(data).length === 0) return null;
-
-  const labels = FIELD_LABELS[title] || {};
-  const sectionTitle = SECTION_LABELS[title] || title.toUpperCase();
-
-  const orderedKeys = Object.keys(labels);
-  const dataKeys = Object.keys(data);
-
-  const presentKeys = orderedKeys.filter((k) => dataKeys.includes(k));
-  const extraKeys = dataKeys.filter((k) => !orderedKeys.includes(k));
-
-  const displayKeys = [...presentKeys, ...extraKeys];
-
-  return (
-    <div className="bg-card p-4 rounded-lg border border-border hover:border-primary/50 transition-colors shadow-sm">
-      <h4 className="font-bold text-xs text-primary uppercase mb-3 pb-2 border-b border-border">
-        {sectionTitle}
-      </h4>
-      <div className="space-y-2">
-        {displayKeys.map((k) => {
-          const value = data[k] as string;
-          let content = (
-            <span
-              className="text-foreground text-right font-medium wrap-break-word text-wrap flex-1 ml-4"
-              title={value}
-            >
-              {value}
-            </span>
-          );
-
-          if (k === "imc" && value && value.includes("(")) {
-            const match = value.match(/^([\d\.,]+)\s*\((.+)\)/);
-            if (match) {
-              content = (
-                <div className="flex items-center gap-2 justify-end flex-1 ml-4">
-                  <span className="font-bold">{match[1]}</span>
-                  <Badge variant="neutral" className="text-[10px] h-5">
-                    {match[2]}
-                  </Badge>
-                </div>
-              );
-            }
-          }
-
-          return (
-            <div
-              key={k}
-              className="flex justify-between text-[11px] items-baseline"
-            >
-              <span className="text-muted-foreground font-medium mr-2 max-w-[50%]">
-                {labels[k] || k}:
-              </span>
-              {content}
-            </div>
-          );
-        })}
-      </div>
     </div>
   );
 }
