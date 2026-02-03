@@ -127,11 +127,15 @@ function renderValue(key: string, value: string | number | boolean | null | unde
   const isTrueString = typeof value === "string" && (value.toLowerCase() === "oui" || value.toLowerCase() === "yes");
   const isFalseString = typeof value === "string" && (value.toLowerCase() === "non" || value.toLowerCase() === "no");
 
+  // Cas spécifique pour le binaire 1/0 (souvent en Section 5)
+  const isBinaryOne = value === 1 || value === "1";
+  const isBinaryZero = value === 0 || value === "0";
+
   // Detection pattern "Oui | Texte" ou "Non | Texte" (Section 9)
   const compositeMatch = typeof value === "string" ? value.match(/^(Oui|Non)\s*\|\s*(.*)$/i) : null;
 
-  if (typeof value === "boolean" || isTrueString || isFalseString || compositeMatch) {
-    const isTrue = value === true || isTrueString || (compositeMatch && compositeMatch[1].toLowerCase() === "oui");
+  if (typeof value === "boolean" || isTrueString || isFalseString || compositeMatch || isBinaryOne || isBinaryZero) {
+    const isTrue = value === true || isTrueString || isBinaryOne || (compositeMatch && compositeMatch[1].toLowerCase() === "oui");
 
     // Si composite, on extrait le texte à afficher à côté du badge
     const extraText = compositeMatch ? compositeMatch[2] : null;
@@ -153,7 +157,7 @@ function renderValue(key: string, value: string | number | boolean | null | unde
     if (compositeMatch) {
       return (
         <div className="flex flex-col gap-1 items-end">
-          <Badge variant="neutral" className="gap-1 pr-2 border-red-200 text-red-700 bg-red-50">
+          <Badge variant="red" className="gap-1 pr-2">
             <XCircle className="w-3 h-3" />
             NON
           </Badge>
@@ -163,8 +167,11 @@ function renderValue(key: string, value: string | number | boolean | null | unde
     }
 
     return (
-      <span className="text-muted-foreground/50 text-xs flex items-center gap-1">
-        <XCircle className="w-3 h-3" /> Non
+      <span className="flex flex-col gap-1 items-end">
+        <Badge variant="red" className="gap-1 pr-2">
+          <XCircle className="w-3 h-3" />
+          NON
+        </Badge>
       </span>
     );
   }

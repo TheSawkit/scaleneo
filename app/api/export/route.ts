@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 
 export async function POST(request: NextRequest) {
-    function createSheet(wb: any, sheetName: string, data: any[]) {
+    function createSheet(wb: XLSX.WorkBook, sheetName: string, data: Record<string, unknown>[]) {
         const ws = XLSX.utils.json_to_sheet(data);
         ws['!cols'] = [{ wch: 30 }, { wch: 80 }];
         const safeName = sheetName.substring(0, 31);
@@ -36,10 +36,20 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "No data provided" }, { status: 400 });
         }
 
-        if (format === "csv") {
-            const categories: Record<string, any[]> = {};
+        const patientName = String((data as Record<string, unknown>)["section1.nomPatient"] || (data as Record<string, unknown>)["nomPatient"] || "patient");
+        const patientId = String((data as Record<string, unknown>)["section1.idPatient"] || (data as Record<string, unknown>)["idPatient"] || "");
 
-            for (const [key, value] of Object.entries(data)) {
+        const cleanName = patientName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const cleanId = patientId.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+        const baseName = [cleanName, cleanId].filter(Boolean).join('_') || 'export_scalenoe';
+        const dateStr = new Date().toISOString().split('T')[0];
+        const filenamePre = `export_${baseName}_${dateStr}`;
+
+        if (format === "csv") {
+            const categories: Record<string, Record<string, unknown>[]> = {};
+
+            for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
                 const parts = key.split('.');
                 const categoryName = parts.length > 1 ? parts[0].toUpperCase() : "GENERAL";
                 const fieldName = parts.length > 1 ? parts.slice(1).join(' ') : key;
@@ -79,10 +89,11 @@ export async function POST(request: NextRequest) {
             const csvWithBOM = BOM + csvContent;
             const csvBuffer = Buffer.from(csvWithBOM, 'utf-8');
 
+            const filename = `${filenamePre}.csv`;
             return new NextResponse(csvBuffer, {
                 status: 200,
                 headers: {
-                    "Content-Disposition": `attachment; filename="patient-data-${new Date().toISOString().split('T')[0]}.csv"`,
+                    "Content-Disposition": `attachment; filename="${filename}"`,
                     "Content-Type": "text/csv;charset=utf-8",
                     "Content-Length": csvBuffer.length.toString(),
                 },
@@ -92,9 +103,9 @@ export async function POST(request: NextRequest) {
         if (format === "xlsx") {
             const workbook = XLSX.utils.book_new();
 
-            const categories: Record<string, any[]> = {};
+            const categories: Record<string, Record<string, unknown>[]> = {};
 
-            for (const [key, value] of Object.entries(data)) {
+            for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
                 const parts = key.split('.');
                 const categoryName = parts.length > 1 ? parts[0].toUpperCase() : "GENERAL";
                 const fieldName = parts.length > 1 ? parts.slice(1).join(' ') : key;
@@ -122,10 +133,11 @@ export async function POST(request: NextRequest) {
             const b64 = XLSX.write(workbook, { type: "base64", bookType: "xlsx" });
             const buffer = Buffer.from(b64, "base64");
 
+            const filename = `${filenamePre}.xlsx`;
             return new NextResponse(buffer, {
                 status: 200,
                 headers: {
-                    "Content-Disposition": `attachment; filename="patient-data-${new Date().toISOString().split('T')[0]}.xlsx"`,
+                    "Content-Disposition": `attachment; filename="${filename}"`,
                     "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     "Content-Length": buffer.length.toString(),
                 },
@@ -138,12 +150,11 @@ export async function POST(request: NextRequest) {
             const json = JSON.stringify(nested, null, 2);
             const jsonBuffer = Buffer.from(json, "utf-8");
 
+            const filename = `${filenamePre}.json`;
             return new NextResponse(jsonBuffer, {
                 status: 200,
                 headers: {
-                    "Content-Disposition": `attachment; filename="patient-data-${new Date()
-                        .toISOString()
-                        .split("T")[0]}.json"`,
+                    "Content-Disposition": `attachment; filename="${filename}"`,
                     "Content-Type": "application/json;charset=utf-8",
                     "Content-Length": jsonBuffer.length.toString(),
                 },
@@ -163,8 +174,8 @@ export async function POST(request: NextRequest) {
     }
 }
 
-function unflattenDotObject(flat: Record<string, any>) {
-    const result: any = {};
+function unflattenDotObject(flat: Record<string, unknown>) {
+    const result: Record<string, unknown> = {};
 
     for (const [path, value] of Object.entries(flat)) {
         if (!path.includes(".")) {
@@ -189,7 +200,7 @@ function unflattenDotObject(flat: Record<string, any>) {
                 cur[k] = isFinite(Number(nextKey)) ? [] : {};
             }
 
-            cur = cur[k];
+            cur = cur[k] as Record<string, unknown>;
         }
     }
 

@@ -13,17 +13,19 @@ export default function ExportPage() {
   const flattenPatientData = () => {
     if (!patientData) return null;
 
-    const flatten = (obj: any, prefix = ''): Record<string, any> => {
-      const result: Record<string, any> = {};
+    const flatten = (obj: Record<string, unknown>, prefix = ''): Record<string, unknown> => {
+      const result: Record<string, unknown> = {};
 
       for (const key in obj) {
+        if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+
         const value = obj[key];
         const newKey = prefix ? `${prefix}.${key}` : key;
 
         if (value && typeof value === 'object' && !Array.isArray(value)) {
-          Object.assign(result, flatten(value, newKey));
+          Object.assign(result, flatten(value as Record<string, unknown>, newKey));
         } else if (Array.isArray(value)) {
-          result[newKey] = value.join(', ');
+          result[newKey] = (value as unknown[]).join(', ');
         } else {
           result[newKey] = value;
         }
@@ -32,10 +34,10 @@ export default function ExportPage() {
       return result;
     };
 
-    return flatten(patientData);
+    return flatten(patientData as unknown as Record<string, unknown>);
   };
 
-  const handleExport = (format: "csv" | "xlsx" | "json") => {
+  const handleExport = async (format: "csv" | "xlsx" | "json") => {
     if (!patientData) {
       alert("Aucune donnée à exporter");
       return;
@@ -46,26 +48,53 @@ export default function ExportPage() {
     try {
       const data = flattenPatientData();
 
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = "/api/export";
-      form.style.display = "none";
+      // 1. Utilisation de fetch au lieu de form.submit()
+      const response = await fetch("/api/export", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data, format }),
+      });
 
-      const inputPayload = document.createElement("input");
-      inputPayload.type = "hidden";
-      inputPayload.name = "payload";
-      inputPayload.value = JSON.stringify({ data, format });
-      form.appendChild(inputPayload);
+      if (!response.ok) {
+        throw new Error("Erreur lors de la génération du fichier");
+      }
 
-      document.body.appendChild(form);
-      form.submit();
+      // 2. Récupération du Blob (le fichier binaire)
+      const blob = await response.blob();
 
-      document.body.removeChild(form);
+      // 3. Création d'une URL pour ce Blob
+      const url = window.URL.createObjectURL(blob);
+
+      // 4. Tentative de récupération du nom de fichier depuis le header Content-Disposition
+      // (Optionnel, sinon on génère un nom par défaut ici)
+      const contentDisposition = response.headers.get("Content-Disposition");
+      let filename = `export_patient_${new Date().toISOString().split('T')[0]}.${format}`;
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (filenameMatch && filenameMatch.length === 2) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // 5. Création et clic sur un lien invisible
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename; // C'est ici que l'extension est forcée
+      document.body.appendChild(a);
+      a.click();
+
+      // 6. Nettoyage
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
     } catch (error) {
       console.error("Erreur export:", error);
       alert(`Erreur lors de l'export ${format.toUpperCase()}`);
     } finally {
-      setTimeout(() => setIsExporting(false), 1000);
+      setIsExporting(false);
     }
   };
 
