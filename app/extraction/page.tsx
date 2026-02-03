@@ -10,7 +10,7 @@ export default function ExtractionPage() {
   const { patientData, setPatientData, setRawContent } = usePatient();
   const router = useRouter();
 
-  const handleDataParsed = (data: PatientData, content: string) => {
+  const handleDataParsed = ( data: PatientData , content: string) => {
     setPatientData(data);
     setRawContent(content);
     if (data) {
@@ -32,6 +32,7 @@ export default function ExtractionPage() {
               <div className="p-4 bg-muted text-foreground rounded-lg text-sm flex items-center gap-2 border border-border">
                 ✅ Analyse complétée avec succès
               </div>
+
               <div className="text-sm text-muted-foreground space-y-2">
                 <div className="flex justify-between py-2 border-b border-border">
                   <span>Variables extraites</span>
@@ -39,10 +40,11 @@ export default function ExtractionPage() {
                     {getAllKeysCount(patientData)}
                   </span>
                 </div>
+
                 <div className="flex justify-between py-2 border-b border-border">
                   <span>Scores identifiés</span>
                   <span className="font-bold text-foreground">
-                    {Object.keys(patientData.scores || {}).length}
+                    {getScoresCount(patientData)}
                   </span>
                 </div>
               </div>
@@ -75,10 +77,44 @@ export default function ExtractionPage() {
   );
 }
 
+function isFilledScoreValue(v: unknown): boolean {
+  // English technical comment: Treat numbers and non-empty strings as "filled". Ignore booleans/objects.
+  if (v === null || v === undefined) return false;
+  if (typeof v === "number") return Number.isFinite(v);
+  if (typeof v === "string") return v.trim().length > 0;
+  return false;
+}
+
+function getScoresCount(data: PatientData): number {
+  // English technical comment: Score-like fields live mainly in section7, plus NRS in section4, and PGIC/satisfaction in section15.
+  const scoreCandidates: unknown[] = [
+    data.section4?.nrsRepos,
+    data.section4?.nrsActivite,
+    data.section4?.nrsMax,
+
+    data.section7?.scoreSBT,
+    data.section7?.scoreCSI,
+    data.section7?.scoreODI,
+    data.section7?.scorePCS,
+    data.section7?.scoreAnxiete,
+    data.section7?.scoreDepression,
+    data.section7?.scoreFabqTravail,
+    data.section7?.scoreFabqActivite,
+    data.section7?.scoreWAI,
+
+    data.section15?.pgic,
+    data.section15?.satisfaction,
+  ];
+
+  return scoreCandidates.filter(isFilledScoreValue).length;
+}
+
 function getAllKeysCount(obj: PatientData): number {
   let count = 0;
+
   for (const key in obj) {
     const section = obj[key as keyof PatientData];
+
     if (
       typeof section === "object" &&
       section !== null &&
@@ -87,5 +123,6 @@ function getAllKeysCount(obj: PatientData): number {
       count += Object.keys(section).length;
     }
   }
+
   return count;
 }

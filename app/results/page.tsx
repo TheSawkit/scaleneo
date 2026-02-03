@@ -33,7 +33,7 @@ export default function ResultsPage() {
             {Object.entries(patientData).map(([sectionKey, sectionData]) => (
               <SectionCard
                 key={sectionKey}
-                title={sectionKey}
+                sectionKey={sectionKey}
                 data={sectionData}
               />
             ))}

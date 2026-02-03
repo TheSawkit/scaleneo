@@ -3,11 +3,13 @@ import { PatientData } from "@/types/patient";
 import { generateHypothesis } from "@/utils/calculations";
 
 interface HypothesisViewProps {
-  data: PatientData;
+   data: PatientData;
 }
 
 export function HypothesisView({ data }: HypothesisViewProps) {
-  const hypothesis = generateHypothesis(data, data.scores || {});
+  // CORRECTION : On ne passe plus que 'data'. 
+  // La fonction 'generateHypothesis' devra être adaptée pour extraire les scores depuis 'data' elle-même.
+  const hypothesis = generateHypothesis(data);
 
   return (
     <Card className="mb-5 border-2 border-accent bg-accent/20">
@@ -77,7 +79,7 @@ function HypothesisCard({
         {title}
       </h4>
       <p className="text-[11px] text-muted-foreground leading-tight">
-        {content}
+        {content || "Non déterminé"}
       </p>
     </div>
   );

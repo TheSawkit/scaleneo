@@ -16,16 +16,37 @@ interface ComputedScore {
 }
 
 export function ScoreSummary({ data }: ScoreSummaryProps) {
-  const scores = data.scores || {};
-  const computedScores = Object.entries(scores)
-    .map(([key, value]) => {
+  const potentialScores = [
+    { key: "sbt", value: data.section7.scoreSBT },
+    { key: "csi", value: data.section7.scoreCSI },
+    { key: "odi", value: data.section7.scoreODI },
+    { key: "pcs", value: data.section7.scorePCS },
+    { key: "hadsAnxiete", value: data.section7.scoreAnxiete },
+    { key: "hadsDepression", value: data.section7.scoreDepression },
+    { key: "fabqTravail", value: data.section7.scoreFabqTravail },
+    { key: "fabqActivite", value: data.section7.scoreFabqActivite },
+    { key: "wai", value: data.section7.scoreWAI },
+  ];
+
+  const computedScores = potentialScores
+    .map(({ key, value }) => {
+      // Si la valeur est vide/null, on ignore ce score
+      if (value === undefined || value === null || value === "") return null;
+
       const def = SCORE_DEFINITIONS[key as keyof typeof SCORE_DEFINITIONS];
       if (!def) return null;
+
+      // Nettoyage des parenthèses pour le résumé (ex: "4/9 (Risque faible)" -> "4/9")
+      const cleanValue = typeof value === "string"
+        ? value.replace(/\s*\(.*\)\s*$/, "").trim()
+        : value;
+
       const interp = interpretScore(
         key as keyof typeof SCORE_DEFINITIONS,
-        value as string,
+        cleanValue
       );
-      return { key, label: def.label, value, interp };
+
+      return { key, label: def.label, value: cleanValue, interp };
     })
     .filter(Boolean) as ComputedScore[];
 

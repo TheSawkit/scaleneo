@@ -105,6 +105,16 @@ export const SCORE_DEFINITIONS: Record<string, ScoreDefinition> = {
       { threshold: 75, label: "Bon", color: "green" },
     ],
   },
+  psfs: {
+    label: "PSFS",
+    min: 0,
+    max: 10,
+    levels: [
+      { threshold: 0, label: "Incapacité", color: "red" },
+      { threshold: 4, label: "Modéré", color: "yellow" },
+      { threshold: 8, label: "Bon", color: "green" },
+    ],
+  },
 };
 
 export interface RedFlagDefinition {
