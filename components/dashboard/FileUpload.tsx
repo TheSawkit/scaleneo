@@ -171,9 +171,6 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
         <CardTitle className="text-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
             📥 Chargement Fichier
-            <span className="text-xs font-normal text-muted-foreground">
-              (.txt ou .json)
-            </span>
           </div>
           <a
             href="/documents/FICHE_BILAN_SCALENEO_TEMPLATE.txt"
