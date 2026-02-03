@@ -20,8 +20,7 @@ export default function ExtractionPage() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <FileUpload onDataParsed={handleDataParsed} /> {/*TODO: Rajouter le template en téléchargement*/}
-
+      <FileUpload onDataParsed={handleDataParsed} />
       <Card className="h-full">
         <CardHeader>
           <CardTitle className="text-lg">⚙️ Traitement</CardTitle>

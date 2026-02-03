@@ -94,7 +94,7 @@ export function SectionCard({ sectionKey, data }: SectionCardProps) {
           }
 
           return (
-            <div key={key} className="flex justify-between items-start text-sm group hover:border-primary hover:border-b-2 hover:border-t-2"> {/* TODO: Enlever le hover */}
+            <div key={key} className="flex justify-between items-start text-sm group hover:border-primary hover:border-b-2 hover:border-t-2">
               <span className="text-muted-foreground font-medium mr-4 min-w-[40%]">
                 {label}
               </span>
