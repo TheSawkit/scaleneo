@@ -27,7 +27,7 @@ export function DashboardNavigation() {
 
   return (
     <div className="flex justify-center w-full">
-      <div className="grid w-full max-w-2xl grid-cols-4 h-auto p-1 bg-muted border shadow-sm rounded-lg">
+      <div className="grid w-full max-w-2xl grid-cols-2 sm:grid-cols-4 h-auto p-1 bg-muted border shadow-sm rounded-lg">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;
           return (

@@ -168,14 +168,14 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
   return (
     <Card className="relative h-full">
       <CardHeader>
-        <CardTitle className="text-lg flex items-center justify-between">
+        <CardTitle className="text-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             📥 Chargement Fichier
           </div>
           <a
             href="/documents/FICHE_BILAN_SCALENEO_TEMPLATE.txt"
             download="FICHE_BILAN_SCALENEO_TEMPLATE.txt"
-            className="text-sm font-normal text-primary hover:text-primary/80 flex items-center gap-1.5 transition-colors"
+            className="text-sm font-normal text-primary hover:text-primary/80 flex items-center sm:text-right gap-1.5 transition-colors"
             title="Télécharger le modèle de fiche bilan"
           >
             <svg
