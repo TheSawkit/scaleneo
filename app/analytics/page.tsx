@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -12,105 +12,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  ReferenceLine,
-} from "recharts";
-import {
-  TrendingDown,
   TrendingUp,
   Plus,
-  Calendar,
   FileText,
   Trash2,
-  CheckCircle2,
   AlertCircle,
 } from "lucide-react";
-
-/**
- * CONFIGURATION DES MÉTRIQUES
- * Basé sur l'implémentation legacy SCALENEO v4
- */
-const METRICS_CONFIG = {
-  nrsMax: {
-    label: "Douleur (NRS Max)",
-    mcid: 2,
-    direction: "down" as const,
-    min: 0,
-    max: 10,
-    color: "#e74c3c",
-  },
-  odi: {
-    label: "Incapacité (ODI)",
-    mcid: 10,
-    direction: "down" as const,
-    min: 0,
-    max: 100,
-    color: "#3498db",
-  },
-  csi: {
-    label: "Sensibilisation (CSI)",
-    mcid: 15,
-    direction: "down" as const,
-    min: 0,
-    max: 100,
-    color: "#f39c12",
-  },
-  pcs: {
-    label: "Catastrophisme (PCS)",
-    mcid: 6,
-    direction: "down" as const,
-    min: 0,
-    max: 52,
-    color: "#9b59b6",
-  },
-  fabqTravail: {
-    label: "Évitement (FABQ-W)",
-    mcid: 12,
-    direction: "down" as const,
-    min: 0,
-    max: 100,
-    color: "#e67e22",
-  },
-  hadsAnxiete: {
-    label: "Anxiété (HADS-A)",
-    mcid: 4,
-    direction: "down" as const,
-    min: 0,
-    max: 21,
-    color: "#1abc9c",
-  },
-  hadsDepression: {
-    label: "Dépression (HADS-D)",
-    mcid: 4,
-    direction: "down" as const,
-    min: 0,
-    max: 21,
-    color: "#16a085",
-  },
-  fabqActivite: {
-    label: "Évitement (FABQ-A)",
-    mcid: 12,
-    direction: "down" as const,
-    min: 0,
-    max: 100,
-    color: "#d35400",
-  },
-  wai: {
-    label: "Alliance (WAI)",
-    mcid: 10,
-    direction: "up" as const,
-    min: 0,
-    max: 100,
-    color: "#27ae60",
-  },
-};
+import { METRICS_CONFIG } from "@/utils/metricsConfig";
+import { extractMetricsFromTxt } from "@/utils/metricsParser";
+import { MetricCard } from "@/components/dashboard/MetricCard";
+import { MetricChart } from "@/components/dashboard/MetricChart";
+import { AssessmentTimeline } from "@/components/dashboard/AssessmentTimeline";
 
 interface Assessment {
   id: string;
@@ -121,44 +33,28 @@ interface Assessment {
 }
 
 /**
- * PARSER RÉGEX (Porté du legacy index.html)
+ * Analytics Page Component
+ *
+ * Displays longitudinal clinical assessment data with:
+ * - Assessment timeline management
+ * - Metric trend cards showing MCID (Minimum Clinically Important Difference)
+ * - Line charts for each metric over time
+ * - Comparison table showing baseline vs. current values
+ *
+ * Metrics tracked:
+ * - Pain (NRS Max), Disability (ODI), Sensitization (CSI)
+ * - Catastrophizing (PCS), Fear-Avoidance (FABQ)
+ * - Anxiety/Depression (HADS), Working Alliance (WAI)
  */
-const extractMetricsFromTxt = (content: string): Record<string, number> => {
-  const metrics: Record<string, number> = {};
-  const patterns = {
-    sbt: [/SBT\s*\(.*0-9\)\s*[:=\s]+(\d+)/iu],
-    csi: [/CSI Score.*0-100\)\s*[:=\s]+(\d+)/iu],
-    odi: [/ODI Score.*0-100\)\s*[:=\s]+(\d+)/iu],
-    pcs: [/PCS Score.*0-52\)\s*[:=\s]+(\d+)/iu],
-    hadsAnxiete: [/HADS Score Anxiété.*0-21\)\s*[:=\s]+(\d+)/iu],
-    hadsDepression: [/HADS Score Dépression.*0-21\)\s*[:=\s]+(\d+)/iu],
-    fabqTravail: [/FABQ Score Travail.*0-100\)\s*[:=\s]+(\d+)/iu],
-    fabqActivite: [/FABQ Score Activité.*0-100\)\s*[:=\s]+(\d+)/iu],
-    nrsRepos: [/NRS Douleur au Repos\s*[:=\s]+(\d+)/iu],
-    nrsActivite: [/NRS Douleur[^R]*l'Activité\s*[:=\s]+(\d+)/iu],
-    nrsMax: [/NRS Douleur Maximum\s*[:=\s]+(\d+)/iu],
-    wai: [/WAI Score.*0-100\)\s*[:=\s]+(\d+\.?\d*)/iu],
-  };
-
-  for (const [key, patternArray] of Object.entries(patterns)) {
-    for (const pattern of patternArray) {
-      const match = content.match(pattern);
-      if (match && match[1]) {
-        metrics[key] = parseFloat(match[1]);
-        break;
-      }
-    }
-  }
-  return metrics;
-};
-
 export default function AnalyticsPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [newDate, setNewDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [newLabel, setNewLabel] = useState("");
-  useEffect(() => {
-  }, []);
 
+  /**
+   * Handles file upload for assessment TXT files
+   * Extracts metrics using regex parser and adds to timeline
+   */
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !newDate) return;
@@ -181,6 +77,7 @@ export default function AnalyticsPage() {
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
         ),
       );
+
       const today = new Date().toISOString().split('T')[0];
       setNewDate(today);
       setNewLabel("");
@@ -189,10 +86,16 @@ export default function AnalyticsPage() {
     reader.readAsText(file);
   };
 
+  /**
+   * Removes an assessment from the timeline
+   */
   const removeAssessment = (id: string) => {
     setAssessments((prev) => prev.filter((a) => a.id !== id));
   };
 
+  /**
+   * Prepares chart data by combining all assessments with their metrics
+   */
   const chartData = useMemo(() => {
     return assessments.map((a) => ({
       name: a.label,
@@ -207,10 +110,10 @@ export default function AnalyticsPage() {
   if (typeof window === "undefined") return null;
 
   return (
-    <div className="space-y-6 max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8 animate-in fade-in duration-500">
+    <div className="space-y-6 max-w-350 mx-auto p-4 md:p-6 lg:p-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight bg-linear-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold tracking-tight bg-linear-to-r from-primary to-primary bg-clip-text text-transparent">
             Analyses Longitudinales
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
@@ -233,12 +136,12 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* SIDEBAR: GESTION DES BILANS */}
+        {/* Assessment Management Sidebar */}
         <div className="lg:col-span-1 space-y-6">
-          <Card className="border-teal-100 shadow-sm overflow-hidden">
-            <CardHeader className="bg-teal-50/50 pb-3">
+          <Card className="border-primary/20 shadow-sm overflow-hidden">
+            <CardHeader className="bg-primary/5 pb-3">
               <CardTitle className="text-sm font-semibold flex items-center">
-                <Plus className="w-4 h-4 mr-2 text-teal-600" /> Ajouter un Bilan
+                <Plus className="w-4 h-4 mr-2 text-primary" /> Ajouter un Bilan
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 space-y-4">
@@ -267,7 +170,7 @@ export default function AnalyticsPage() {
                 <Label
                   htmlFor="file"
                   className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors ${newDate
-                    ? "border-teal-200 bg-teal-50/30 hover:bg-teal-50/60"
+                    ? "border-primary/30 bg-primary/5 hover:bg-primary/10"
                     : "border-muted bg-muted/20 cursor-not-allowed opacity-50"
                     }`}
                 >
@@ -288,72 +191,24 @@ export default function AnalyticsPage() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm border-muted">
-            <CardHeader className="pb-3 border-b">
-              <CardTitle className="text-sm font-semibold flex items-center">
-                <Calendar className="w-4 h-4 mr-2 text-foreground" /> Timeline des
-                Bilans
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="max-h-[400px] overflow-y-auto">
-                {assessments.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-muted-foreground italic">
-                    Aucun bilan chargé
-                  </div>
-                ) : (
-                  assessments.map((a, idx) => (
-                    <div
-                      key={a.id}
-                      className={`flex items-start justify-between p-3 border-b hover:bg-muted/30 transition-colors ${idx === 0 ? "bg-teal-50/20" : ""
-                        }`}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div
-                          className={`mt-1 p-1 rounded-full ${idx === 0
-                            ? "bg-teal-100 text-teal-600"
-                            : "bg-muted text-muted-foreground"
-                            }`}
-                        >
-                          <CheckCircle2 className="w-3 h-3" />
-                        </div>
-                        <div>
-                          <div className="text-xs font-bold leading-none mb-1">
-                            {a.label}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">
-                            {new Date(a.date).toLocaleDateString("fr-FR")}
-                          </div>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="w-6 h-6 text-muted-foreground hover:text-destructive"
-                        onClick={() => removeAssessment(a.id)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <AssessmentTimeline
+            assessments={assessments}
+            onRemove={removeAssessment}
+          />
         </div>
 
-        {/* DASHBOARD & CHARTS */}
+        {/* Dashboard & Charts */}
         <div className="lg:col-span-3 space-y-6">
           {assessments.length === 0 ? (
             <Card className="border-dashed border-2 bg-muted/10">
-              <CardContent className="flex flex-col items-center justify-center h-[500px] text-center p-8">
-                <div className="p-4 bg-teal-50 rounded-full mb-4">
-                  <TrendingUp className="w-10 h-10 text-teal-600" />
+              <CardContent className="flex flex-col items-center justify-center h-125 text-center p-8">
+                <div className="p-4 bg-primary/10 rounded-full mb-4">
+                  <TrendingUp className="w-10 h-10 text-primary" />
                 </div>
-                <h2 className="text-xl font-semibold text-teal-900">
+                <h2 className="text-xl font-semibold text-primary">
                   Prêt pour l&apos;analyse
                 </h2>
-                <p className="text-sm text-muted-foreground max-w-[400px] mt-2">
+                <p className="text-sm text-muted-foreground max-w-100 mt-2">
                   Importez un premier bilan (Bilan Initial) puis des bilans de
                   suivi pour visualiser les courbes de progression et les MCID.
                 </p>
@@ -361,7 +216,7 @@ export default function AnalyticsPage() {
             </Card>
           ) : (
             <>
-              {/* METRIC CARDS GRID */}
+              {/* Metric Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {Object.entries(METRICS_CONFIG).map(([key, config]) => {
                   const bVal = baseline?.metrics?.[key];
@@ -369,77 +224,19 @@ export default function AnalyticsPage() {
 
                   if (bVal === undefined || lVal === undefined) return null;
 
-                  const diff = lVal - bVal;
-                  const isImprovement =
-                    config.direction === "down" ? diff < 0 : diff > 0;
-                  const isSignificant = Math.abs(diff) >= config.mcid;
-
                   return (
-                    <Card key={key} className="shadow-sm overflow-hidden">
-                      <div
-                        className={`h-1 w-full ${isSignificant ? "bg-teal-500" : "bg-muted"}`}
-                        style={{
-                          backgroundColor: isSignificant
-                            ? isImprovement
-                              ? "#10b981"
-                              : "#ef4444"
-                            : "#e5e7eb",
-                        }}
-                      />
-                      <CardContent className="pt-4 px-4 pb-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
-                            {config.label}
-                          </span>
-                          {isSignificant && (
-                            <Badge
-                              className={
-                                isImprovement
-                                  ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none px-1.5 py-0 text-[9px]"
-                                  : "bg-rose-100 text-rose-700 hover:bg-rose-100 border-none px-1.5 py-0 text-[9px]"
-                              }
-                            >
-                              MCID √
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-baseline gap-2">
-                          <div className="text-2xl font-bold">
-                            {lVal.toFixed(1)}
-                          </div>
-                          <div
-                            className={`flex items-center text-xs font-semibold ${isImprovement ? "text-emerald-600" : "text-rose-600"
-                              }`}
-                          >
-                            {isImprovement ? (
-                              <TrendingDown className="w-3 h-3 mr-0.5" />
-                            ) : (
-                              <TrendingUp className="w-3 h-3 mr-0.5" />
-                            )}
-                            {Math.abs(diff).toFixed(1)}
-                          </div>
-                        </div>
-                        <div className="mt-3 pt-3 border-t flex justify-between items-center">
-                          <div className="text-[10px] text-muted-foreground">
-                            Baseline:{" "}
-                            <span className="font-medium text-foreground">
-                              {bVal}
-                            </span>
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">
-                            Cible:{" "}
-                            <span className="font-medium text-foreground">
-                              ±{config.mcid}
-                            </span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <MetricCard
+                      key={key}
+                      metricKey={key}
+                      config={config}
+                      baselineValue={bVal}
+                      latestValue={lVal}
+                    />
                   );
                 })}
               </div>
 
-              {/* CHARTS GRID */}
+              {/* Charts Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {Object.entries(METRICS_CONFIG).map(([key, config]) => {
                   const hasData = assessments.some(
@@ -448,101 +245,21 @@ export default function AnalyticsPage() {
                   if (!hasData) return null;
 
                   const bVal = baseline?.metrics?.[key];
-                  const mcidTarget =
-                    config.direction === "down"
-                      ? bVal - config.mcid
-                      : bVal + config.mcid;
+                  if (bVal === undefined) return null;
 
                   return (
-                    <Card key={key} className="shadow-sm border-muted">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-bold flex items-center justify-between">
-                          <span>📈 Trend: {config.label}</span>
-                          <span className="text-[10px] font-normal text-muted-foreground">
-                            Range: {config.min}-{config.max}
-                          </span>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="h-[250px] w-full mt-4">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <LineChart
-                              data={chartData}
-                              margin={{ top: 5, right: 30, left: -20, bottom: 5 }}
-                            >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                vertical={false}
-                                stroke="#f0f0f0"
-                              />
-                              <XAxis
-                                dataKey="name"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fontSize: 10, fill: "#666" }}
-                              />
-                              <YAxis
-                                domain={[config.min, config.max]}
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fontSize: 10, fill: "#666" }}
-                              />
-                              <Tooltip
-                                contentStyle={{
-                                  borderRadius: "8px",
-                                  border: "1px solid #e2e8f0",
-                                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                                }}
-                                labelStyle={{ fontWeight: "bold", fontSize: "12px" }}
-                              />
-                              <Legend iconType="circle" wrapperStyle={{ fontSize: "10px" }} />
-                              <ReferenceLine
-                                y={bVal}
-                                label={{
-                                  value: "Baseline",
-                                  position: "insideLeft",
-                                  fontSize: 8,
-                                  fill: "#94a3b8",
-                                }}
-                                stroke="#94a3b8"
-                                strokeDasharray="3 3"
-                              />
-                              <ReferenceLine
-                                y={mcidTarget}
-                                label={{
-                                  value: "MCID Target",
-                                  position: "insideRight",
-                                  fontSize: 8,
-                                  fill: "#10b981",
-                                }}
-                                stroke="#10b981"
-                                strokeDasharray="5 5"
-                              />
-                              <Line
-                                type="monotone"
-                                dataKey={key}
-                                name={config.label}
-                                stroke={config.color}
-                                strokeWidth={3}
-                                dot={{
-                                  r: 4,
-                                  fill: config.color,
-                                  strokeWidth: 2,
-                                  stroke: "#fff",
-                                }}
-                                activeDot={{ r: 6, strokeWidth: 0 }}
-                                animationDuration={1000}
-                              />
-                            </LineChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <MetricChart
+                      key={key}
+                      metricKey={key}
+                      config={config}
+                      chartData={chartData}
+                      baselineValue={bVal}
+                    />
                   );
                 })}
               </div>
 
-              {/* COMPARISON TABLE */}
+              {/* Comparison Table */}
               <Card className="shadow-sm border-muted overflow-hidden">
                 <CardHeader className="bg-muted/30 pb-3">
                   <CardTitle className="text-sm font-bold">
@@ -589,8 +306,8 @@ export default function AnalyticsPage() {
                               </td>
                               <td
                                 className={`px-6 py-4 font-semibold ${isImprovement
-                                  ? "text-emerald-600"
-                                  : "text-rose-600"
+                                  ? "text-[hsl(var(--text-success))]"
+                                  : "text-[hsl(var(--text-error))]"
                                   }`}
                               >
                                 {diff > 0 ? "+" : ""}
@@ -601,7 +318,7 @@ export default function AnalyticsPage() {
                               </td>
                               <td className="px-6 py-4">
                                 {isSignificant ? (
-                                  <Badge className="bg-teal-500 hover:bg-teal-600 rounded-sm px-2 py-0.5 text-[10px]">
+                                  <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm px-2 py-0.5 text-[10px]">
                                     MCID ATTEINT
                                   </Badge>
                                 ) : (

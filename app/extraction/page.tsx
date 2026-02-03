@@ -10,7 +10,7 @@ export default function ExtractionPage() {
   const { patientData, setPatientData, setRawContent } = usePatient();
   const router = useRouter();
 
-  const handleDataParsed = ( data: PatientData , content: string) => {
+  const handleDataParsed = (data: PatientData, content: string) => {
     setPatientData(data);
     setRawContent(content);
     if (data) {
@@ -20,7 +20,7 @@ export default function ExtractionPage() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <FileUpload onDataParsed={handleDataParsed} />
+      <FileUpload onDataParsed={handleDataParsed} /> {/*TODO: Rajouter le template en téléchargement*/}
 
       <Card className="h-full">
         <CardHeader>
@@ -78,7 +78,6 @@ export default function ExtractionPage() {
 }
 
 function isFilledScoreValue(v: unknown): boolean {
-  // English technical comment: Treat numbers and non-empty strings as "filled". Ignore booleans/objects.
   if (v === null || v === undefined) return false;
   if (typeof v === "number") return Number.isFinite(v);
   if (typeof v === "string") return v.trim().length > 0;
@@ -86,7 +85,6 @@ function isFilledScoreValue(v: unknown): boolean {
 }
 
 function getScoresCount(data: PatientData): number {
-  // English technical comment: Score-like fields live mainly in section7, plus NRS in section4, and PGIC/satisfaction in section15.
   const scoreCandidates: unknown[] = [
     data.section4?.nrsRepos,
     data.section4?.nrsActivite,

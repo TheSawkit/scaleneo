@@ -8,6 +8,18 @@ interface RedFlagsAlertProps {
   data: PatientData;
 }
 
+/**
+ * RedFlagsAlert Component
+ *
+ * Detects and displays clinical red flags (warning signs) from patient data.
+ *
+ * Shows:
+ * - Green confirmation card if no red flags detected
+ * - Red alert card with categorized flags if any are found
+ * - Flags are color-coded by severity: CRITICAL (red), HIGH (orange), MODERATE (yellow)
+ *
+ * @param data - Complete patient data object to analyze
+ */
 export function RedFlagsAlert({ data }: RedFlagsAlertProps) {
   const flags = detectRedFlags(data);
   const flagCount = Object.keys(flags).length;

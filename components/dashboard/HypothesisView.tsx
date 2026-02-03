@@ -3,12 +3,20 @@ import { PatientData } from "@/types/patient";
 import { generateHypothesis } from "@/utils/calculations";
 
 interface HypothesisViewProps {
-   data: PatientData;
+  data: PatientData;
 }
 
+/**
+ * HypothesisView Component
+ *
+ * Displays a comprehensive clinical hypothesis synthesized from patient data.
+ * Organized into 10 key assessment categories:
+ * - Pathology, Sources of Symptoms, Pain Type, Impairments, Pain Mechanisms
+ * - Precautions, Patient Perspectives, Activity/Participation, Contributing Factors, Management/Prognosis
+ *
+ * @param data - Complete patient data object used to generate clinical hypothesis
+ */
 export function HypothesisView({ data }: HypothesisViewProps) {
-  // CORRECTION : On ne passe plus que 'data'. 
-  // La fonction 'generateHypothesis' devra être adaptée pour extraire les scores depuis 'data' elle-même.
   const hypothesis = generateHypothesis(data);
 
   return (
@@ -66,6 +74,14 @@ export function HypothesisView({ data }: HypothesisViewProps) {
   );
 }
 
+/**
+ * HypothesisCard Subcomponent
+ *
+ * Displays a single hypothesis category with title and content.
+ *
+ * @param title - Category title (e.g., "01. Pathologie")
+ * @param content - Category content or "Non déterminé" if empty
+ */
 function HypothesisCard({
   title,
   content,

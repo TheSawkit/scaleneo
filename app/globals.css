@@ -88,6 +88,28 @@
   --ring: hsl(176 77% 31%);
 
   --radius: 0.5rem;
+
+  /* Metric colors for analytics charts */
+  --metric-pain: hsl(0 79% 63%);
+  --metric-disability: hsl(207 90% 54%);
+  --metric-sensitization: hsl(37 90% 51%);
+  --metric-catastrophizing: hsl(282 39% 53%);
+  --metric-avoidance-work: hsl(27 90% 50%);
+  --metric-anxiety: hsl(168 76% 42%);
+  --metric-depression: hsl(168 54% 42%);
+  --metric-avoidance-activity: hsl(16 90% 48%);
+  --metric-alliance: hsl(145 63% 42%);
+
+  /* Semantic backgrounds */
+  --bg-success: hsl(145 63% 95%);
+  --bg-success-subtle: hsl(145 63% 98%);
+  --bg-warning: hsl(37 90% 95%);
+  --bg-error: hsl(0 79% 95%);
+  --bg-info: hsl(207 90% 95%);
+
+  /* Semantic text colors */
+  --text-success: hsl(145 63% 35%);
+  --text-error: hsl(0 79% 45%);
 }
 
 @media (prefers-color-scheme: dark) {

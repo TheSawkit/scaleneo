@@ -1,25 +1,68 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as XLSX from "xlsx";
+import { unflattenDotObject } from "@/utils/objectHelpers";
 
+/**
+ * Ordered category list for organizing exported data
+ * Ensures consistent section ordering in CSV and XLSX exports
+ */
+const ORDERED_CATEGORIES = [
+    "ADMIN",
+    "ANTHROPO",
+    "PATHOLOGIE",
+    "SYMPTOMES",
+    "MECANISMES",
+    "TESTS",
+    "SCORES",
+    "REDFLAGS",
+    "GESTION",
+    "PRONOSTIC",
+    "OBSERVATIONS",
+    "HYPOTHESE"
+];
+
+/**
+ * Creates a worksheet and adds it to the workbook
+ *
+ * @param wb - Excel workbook to append sheet to
+ * @param sheetName - Name of the sheet (max 31 characters)
+ * @param data - Array of objects to populate sheet
+ */
+function createSheet(
+    wb: XLSX.WorkBook,
+    sheetName: string,
+    data: Record<string, unknown>[]
+) {
+    const ws = XLSX.utils.json_to_sheet(data);
+    ws['!cols'] = [{ wch: 30 }, { wch: 80 }];
+    const safeName = sheetName.substring(0, 31);
+    XLSX.utils.book_append_sheet(wb, ws, safeName);
+}
+
+/**
+ * POST /api/export
+ *
+ * Exports patient data in requested format (CSV, XLSX, or JSON)
+ *
+ * Request body:
+ * - data: Flattened patient data object with dot-notation keys
+ * - format: Export format ('csv' | 'xlsx' | 'json')
+ *
+ * Response: Binary file with appropriate Content-Type and filename
+ */
 export async function POST(request: NextRequest) {
-    function createSheet(wb: XLSX.WorkBook, sheetName: string, data: Record<string, unknown>[]) {
-        const ws = XLSX.utils.json_to_sheet(data);
-        ws['!cols'] = [{ wch: 30 }, { wch: 80 }];
-        const safeName = sheetName.substring(0, 31);
-        XLSX.utils.book_append_sheet(wb, ws, safeName);
-    }
-
     try {
-        let data, format;
+        let data: Record<string, unknown>;
+        let format: string;
 
         const contentType = request.headers.get("content-type") || "";
-        const orderedCategories = ["ADMIN", "ANTHROPO", "PATHOLOGIE", "SYMPTOMES", "MECANISMES", "TESTS", "SCORES", "REDFLAGS", "GESTION", "PRONOSTIC", "OBSERVATIONS", "HYPOTHESE"];
 
         if (contentType.includes("application/json")) {
             const body = await request.json();
             data = body.data;
             format = body.format;
         } else {
+            // Support legacy FormData format
             const formData = await request.formData();
             const payloadString = formData.get("payload") as string;
 
@@ -36,8 +79,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "No data provided" }, { status: 400 });
         }
 
-        const patientName = String((data as Record<string, unknown>)["section1.nomPatient"] || (data as Record<string, unknown>)["nomPatient"] || "patient");
-        const patientId = String((data as Record<string, unknown>)["section1.idPatient"] || (data as Record<string, unknown>)["idPatient"] || "");
+        const patientName = String(
+            data["section1.nomPatient"] || data["nomPatient"] || "patient"
+        );
+        const patientId = String(
+            data["section1.idPatient"] || data["idPatient"] || ""
+        );
 
         const cleanName = patientName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
         const cleanId = patientId.replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -47,33 +94,14 @@ export async function POST(request: NextRequest) {
         const filenamePre = `export_${baseName}_${dateStr}`;
 
         if (format === "csv") {
-            const categories: Record<string, Record<string, unknown>[]> = {};
-
-            for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
-                const parts = key.split('.');
-                const categoryName = parts.length > 1 ? parts[0].toUpperCase() : "GENERAL";
-                const fieldName = parts.length > 1 ? parts.slice(1).join(' ') : key;
-
-                if (!categories[categoryName]) {
-                    categories[categoryName] = [];
-                }
-
-                categories[categoryName].push({
-                    Champ: fieldName,
-                    Valeur: value
-                });
-            }
-
+            const categories = categorizeData(data);
             let csvContent = "";
-
-            orderedCategories.forEach(cat => {
+            ORDERED_CATEGORIES.forEach(cat => {
                 if (categories[cat]) {
                     csvContent += `\n=== ${cat} ===\n`;
-
                     const worksheet = XLSX.utils.json_to_sheet(categories[cat]);
                     const csv = XLSX.utils.sheet_to_csv(worksheet);
                     csvContent += csv;
-
                     delete categories[cat];
                 }
             });
@@ -102,25 +130,8 @@ export async function POST(request: NextRequest) {
 
         if (format === "xlsx") {
             const workbook = XLSX.utils.book_new();
-
-            const categories: Record<string, Record<string, unknown>[]> = {};
-
-            for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
-                const parts = key.split('.');
-                const categoryName = parts.length > 1 ? parts[0].toUpperCase() : "GENERAL";
-                const fieldName = parts.length > 1 ? parts.slice(1).join(' ') : key;
-
-                if (!categories[categoryName]) {
-                    categories[categoryName] = [];
-                }
-
-                categories[categoryName].push({
-                    Champ: fieldName,
-                    Valeur: value
-                });
-            }
-
-            orderedCategories.forEach(cat => {
+            const categories = categorizeData(data);
+            ORDERED_CATEGORIES.forEach(cat => {
                 if (categories[cat]) {
                     createSheet(workbook, cat, categories[cat]);
                     delete categories[cat];
@@ -130,6 +141,7 @@ export async function POST(request: NextRequest) {
             Object.keys(categories).forEach(cat => {
                 createSheet(workbook, cat, categories[cat]);
             });
+
             const b64 = XLSX.write(workbook, { type: "base64", bookType: "xlsx" });
             const buffer = Buffer.from(b64, "base64");
 
@@ -146,7 +158,6 @@ export async function POST(request: NextRequest) {
 
         if (format === "json") {
             const nested = unflattenDotObject(data);
-
             const json = JSON.stringify(nested, null, 2);
             const jsonBuffer = Buffer.from(json, "utf-8");
 
@@ -174,35 +185,33 @@ export async function POST(request: NextRequest) {
     }
 }
 
-function unflattenDotObject(flat: Record<string, unknown>) {
-    const result: Record<string, unknown> = {};
+/**
+ * Categorizes flattened data by section prefix
+ *
+ * Converts dot-notation keys like "section1.nomPatient" into categorized groups
+ * - Keys with dots are grouped by their prefix (e.g., "section1" → "SECTION1")
+ * - Keys without dots go into "GENERAL" category
+ *
+ * @param data - Flattened data object with dot-notation keys
+ * @returns Object mapping category names to arrays of field/value pairs
+ */
+function categorizeData(data: Record<string, unknown>): Record<string, Record<string, unknown>[]> {
+    const categories: Record<string, Record<string, unknown>[]> = {};
 
-    for (const [path, value] of Object.entries(flat)) {
-        if (!path.includes(".")) {
-            result[path] = value;
-            continue;
+    for (const [key, value] of Object.entries(data)) {
+        const parts = key.split('.');
+        const categoryName = parts.length > 1 ? parts[0].toUpperCase() : "GENERAL";
+        const fieldName = parts.length > 1 ? parts.slice(1).join(' ') : key;
+
+        if (!categories[categoryName]) {
+            categories[categoryName] = [];
         }
 
-        const keys = path.split(".");
-        let cur = result;
-
-        for (let i = 0; i < keys.length; i++) {
-            const k = keys[i];
-            const isLast = i === keys.length - 1;
-            const nextKey = keys[i + 1];
-
-            if (isLast) {
-                cur[k] = value;
-                break;
-            }
-
-            if (!(k in cur)) {
-                cur[k] = isFinite(Number(nextKey)) ? [] : {};
-            }
-
-            cur = cur[k] as Record<string, unknown>;
-        }
+        categories[categoryName].push({
+            Champ: fieldName,
+            Valeur: value
+        });
     }
 
-    return result;
+    return categories;
 }

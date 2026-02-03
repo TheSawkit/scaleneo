@@ -1,3 +1,15 @@
+/**
+ * Field and Section Labels Configuration
+ *
+ * Defines human-readable labels for all patient data fields and sections.
+ *
+ * FIELD_LABELS: Maps section keys (section1, section2...) to field label dictionaries.
+ * Used by SectionCard component to display formatted field names.
+ *
+ * SECTION_LABELS: Maps semantic section keys to section titles.
+ * Example: 'admin' -> '1: INFORMATION ADMINISTRATIVE'
+ */
+
 export const FIELD_LABELS: Record<string, Record<string, string>> = {
   section1: {
     nomPatient: "Nom du patient",

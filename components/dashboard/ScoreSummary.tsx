@@ -15,6 +15,19 @@ interface ComputedScore {
   interp: ReturnType<typeof interpretScore>;
 }
 
+/**
+ * ScoreSummary Component
+ *
+ * Displays a grid of clinical assessment scores with color-coded interpretations.
+ * Shows 9 potential scores: SBT, CSI, ODI, PCS, HADS (Anxiety/Depression), FABQ (Work/Activity), WAI.
+ *
+ * Features:
+ * - Auto-filters empty scores
+ * - Cleans parenthetical text from values
+ * - Color-coded borders based on severity (green, yellow, red)
+ *
+ * @param data - Complete patient data object
+ */
 export function ScoreSummary({ data }: ScoreSummaryProps) {
   const potentialScores = [
     { key: "sbt", value: data.section7.scoreSBT },
@@ -30,13 +43,11 @@ export function ScoreSummary({ data }: ScoreSummaryProps) {
 
   const computedScores = potentialScores
     .map(({ key, value }) => {
-      // Si la valeur est vide/null, on ignore ce score
       if (value === undefined || value === null || value === "") return null;
 
       const def = SCORE_DEFINITIONS[key as keyof typeof SCORE_DEFINITIONS];
       if (!def) return null;
 
-      // Nettoyage des parenthèses pour le résumé (ex: "4/9 (Risque faible)" -> "4/9")
       const cleanValue = typeof value === "string"
         ? value.replace(/\s*\(.*\)\s*$/, "").trim()
         : value;

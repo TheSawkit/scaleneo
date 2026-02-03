@@ -1,42 +1,32 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { usePatient } from "@/components/providers/PatientProvider";
 import { Download, FileSpreadsheet, FileText } from "lucide-react";
 import { useState } from "react";
+import { ExportButton } from "@/components/dashboard/ExportButton";
+import { flattenObject } from "@/utils/objectHelpers";
 
+/**
+ * Export Page Component
+ *
+ * Allows users to export patient data in multiple formats:
+ * - CSV: Text format compatible with Excel
+ * - XLSX: Native Excel spreadsheet
+ * - JSON: Raw data format for programmatic use
+ *
+ * Data is sent to the export API route which handles format conversion
+ */
 export default function ExportPage() {
   const { patientData } = usePatient();
   const [isExporting, setIsExporting] = useState(false);
 
-  const flattenPatientData = () => {
-    if (!patientData) return null;
-
-    const flatten = (obj: Record<string, unknown>, prefix = ''): Record<string, unknown> => {
-      const result: Record<string, unknown> = {};
-
-      for (const key in obj) {
-        if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
-
-        const value = obj[key];
-        const newKey = prefix ? `${prefix}.${key}` : key;
-
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
-          Object.assign(result, flatten(value as Record<string, unknown>, newKey));
-        } else if (Array.isArray(value)) {
-          result[newKey] = (value as unknown[]).join(', ');
-        } else {
-          result[newKey] = value;
-        }
-      }
-
-      return result;
-    };
-
-    return flatten(patientData as unknown as Record<string, unknown>);
-  };
-
+  /**
+   * Handles export action for a specific format
+   * Sends flattened patient data to API and triggers file download
+   *
+   * @param format - Export format: csv, xlsx, or json
+   */
   const handleExport = async (format: "csv" | "xlsx" | "json") => {
     if (!patientData) {
       alert("Aucune donnée à exporter");
@@ -46,9 +36,8 @@ export default function ExportPage() {
     setIsExporting(true);
 
     try {
-      const data = flattenPatientData();
+      const data = flattenObject(patientData as unknown as Record<string, unknown>);
 
-      // 1. Utilisation de fetch au lieu de form.submit()
       const response = await fetch("/api/export", {
         method: "POST",
         headers: {
@@ -61,14 +50,9 @@ export default function ExportPage() {
         throw new Error("Erreur lors de la génération du fichier");
       }
 
-      // 2. Récupération du Blob (le fichier binaire)
       const blob = await response.blob();
-
-      // 3. Création d'une URL pour ce Blob
       const url = window.URL.createObjectURL(blob);
 
-      // 4. Tentative de récupération du nom de fichier depuis le header Content-Disposition
-      // (Optionnel, sinon on génère un nom par défaut ici)
       const contentDisposition = response.headers.get("Content-Disposition");
       let filename = `export_patient_${new Date().toISOString().split('T')[0]}.${format}`;
 
@@ -79,14 +63,12 @@ export default function ExportPage() {
         }
       }
 
-      // 5. Création et clic sur un lien invisible
       const a = document.createElement("a");
       a.href = url;
-      a.download = filename; // C'est ici que l'extension est forcée
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
 
-      // 6. Nettoyage
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
@@ -117,53 +99,32 @@ export default function ExportPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button
-                type="button"
+              <ExportButton
+                format="csv"
+                icon={FileText}
+                title="Export CSV"
+                description="Format texte compatible Excel"
                 onClick={() => handleExport("csv")}
-                variant="outline"
-                className="h-auto flex flex-col items-center gap-3 py-6"
                 disabled={isExporting}
-              >
-                <FileText className="h-8 w-8" />
-                <div className="flex flex-col items-center">
-                  <span className="font-semibold">Export CSV</span>
-                  <span className="text-xs text-muted-foreground">
-                    Format texte compatible Excel
-                  </span>
-                </div>
-              </Button>
+              />
 
-              <Button
-                type="button"
+              <ExportButton
+                format="xlsx"
+                icon={FileSpreadsheet}
+                title="Export XLSX"
+                description="Fichier Excel complet"
                 onClick={() => handleExport("xlsx")}
-                variant="outline"
-                className="h-auto flex flex-col items-center gap-3 py-6"
                 disabled={isExporting}
-              >
-                <FileSpreadsheet className="h-8 w-8" />
-                <div className="flex flex-col items-center">
-                  <span className="font-semibold">Export XLSX</span>
-                  <span className="text-xs text-muted-foreground">
-                    Fichier Excel complet
-                  </span>
-                </div>
-              </Button>
+              />
 
-              <Button
-                type="button"
+              <ExportButton
+                format="json"
+                icon={Download}
+                title="Export JSON"
+                description="Format données brutes"
                 onClick={() => handleExport("json")}
-                variant="outline"
-                className="h-auto flex flex-col items-center gap-3 py-6"
                 disabled={isExporting}
-              >
-                <Download className="h-8 w-8" />
-                <div className="flex flex-col items-center">
-                  <span className="font-semibold">Export JSON</span>
-                  <span className="text-xs text-muted-foreground">
-                    Format données brutes
-                  </span>
-                </div>
-              </Button>
+              />
             </div>
 
             {isExporting && (

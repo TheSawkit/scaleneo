@@ -37,7 +37,7 @@ export default function RootLayout({
                 🚀 SCALENEO
               </h1>
               <p className="opacity-90 text-sm font-medium uppercase tracking-wider">
-                Platform Clinique Complète d'Analyse
+                Platform Clinique Complète d&apos;Analyse
               </p>
             </header>
 

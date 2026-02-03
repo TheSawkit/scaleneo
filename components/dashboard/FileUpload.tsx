@@ -10,9 +10,23 @@ import { PatientData } from "@/types/patient";
 import { cn } from "@/lib/utils";
 
 interface FileUploadProps {
-  onDataParsed: ( arg0: PatientData, rawContent: string) => void;
+  onDataParsed: (arg0: PatientData, rawContent: string) => void;
 }
 
+/**
+ * FileUpload Component
+ *
+ * Drag-and-drop file upload interface for patient data files.
+ * Supports .txt (clinical reports) and .json (structured data) formats.
+ *
+ * Features:
+ * - Drag-and-drop and click-to-browse upload
+ * - Format validation (rejects RTF and unsupported formats)
+ * - Real-time parsing with visual feedback
+ * - Error handling with user-friendly messages
+ *
+ * @param onDataParsed - Callback invoked after successful parsing with PatientData and raw content
+ */
 export function FileUpload({ onDataParsed }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -20,6 +34,10 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  /**
+   * Handles drag events for file upload zone
+   * Activates visual feedback when file is dragged over the zone
+   */
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -30,6 +48,10 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
     }
   };
 
+  /**
+   * Handles file drop events
+   * Processes the first file from the dropped files
+   */
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -39,6 +61,10 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
     }
   };
 
+  /**
+   * Handles file selection via input element
+   * Triggers when user clicks browse button
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
@@ -46,12 +72,25 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
     }
   };
 
+  /**
+   * Main file processing handler
+   *
+   * Validates file format, reads content, and parses data.
+   * Supports both JSON (structured data) and TXT (clinical reports) formats.
+   *
+   * Validation steps:
+   * 1. Check file extension and MIME type
+   * 2. Reject RTF format (common user mistake)
+   * 3. Validate content is not empty
+   * 4. Parse based on format (JSON.parse or PatientParser)
+   * 5. Verify Section 1 data exists
+   *
+   * @param file - File object from drag-drop or file input
+   */
   const handleFile = (file: File) => {
-    // Reset states
     setError(null);
     setIsProcessing(true);
 
-    // Validate file extension
     const fileNameLower = file.name.toLowerCase();
     const isJson = fileNameLower.endsWith(".json") || file.type === "application/json";
     const isTxt = fileNameLower.endsWith(".txt") || file.type === "text/plain";
@@ -66,7 +105,7 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
     setFileType(isJson ? "JSON" : "TXT");
 
     const reader = new FileReader();
-    
+
     reader.onerror = () => {
       setError("❌ Erreur de lecture du fichier. Vérifiez que le fichier n'est pas corrompu.");
       setIsProcessing(false);
@@ -74,14 +113,12 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
 
     reader.onload = (e) => {
       const content = e.target?.result as string;
-      
+
       try {
-        // 1. Validate content exists
         if (!content || content.trim().length === 0) {
           throw new Error("Le fichier est vide.");
         }
 
-        // 2. Detect and reject RTF format (common mistake)
         if (content.trim().startsWith("{\\rtf")) {
           throw new Error(
             "❌ Format RTF détecté. Veuillez enregistrer au format 'Texte brut' (.txt) sans mise en forme.\n\n" +
@@ -89,22 +126,19 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
           );
         }
 
-        // 3. Parse based on file type
         let parsedData: PatientData;
 
         if (isJson) {
-          // Direct JSON parsing (si le fichier est déjà au bon format)
           try {
             parsedData = JSON.parse(content) as PatientData;
           } catch (jsonErr) {
-            throw new Error("Format JSON invalide. Vérifiez la syntaxe du fichier.");
+            console.error("❌ Erreur de parsing JSON:", jsonErr);
+            throw new Error(`Format JSON invalide. Vérifiez la syntaxe du fichier.`);
           }
         } else {
-          // TXT parsing via le nouveau parser
           parsedData = PatientParser.parse(content);
         }
 
-        // 4. Basic validation: Check if at least Section 1 has data
         if (!parsedData.section1 || Object.keys(parsedData.section1).length === 0) {
           throw new Error(
             "⚠️ Aucune donnée extraite de la Section 1 (Identité Patient).\n\n" +
@@ -112,26 +146,23 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
           );
         }
 
-        // 5. Success - Pass data to parent component
         setIsProcessing(false);
         onDataParsed(parsedData, content);
 
       } catch (err: unknown) {
-        // Error handling with detailed messages
         const errorMessage =
           err instanceof Error
             ? err.message
             : "Erreur inconnue lors du parsing. Contactez le support technique.";
-        
+
         setError(errorMessage);
         setIsProcessing(false);
-        
-        // Log for debugging (remove in production if needed)
+
         console.error("❌ Erreur de parsing:", err);
       }
     };
 
-    reader.readAsText(file, "UTF-8"); // Force UTF-8 encoding
+    reader.readAsText(file, "UTF-8");
   };
 
   return (
@@ -230,7 +261,6 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
           </div>
         </div>
 
-        {/* Error Display */}
         {error && (
           <div className="mt-4 p-3 bg-destructive/10 text-destructive rounded-md text-sm flex items-start gap-2 animate-in slide-in-from-top-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -238,7 +268,6 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
           </div>
         )}
 
-        {/* Success Display */}
         {fileName && !error && !isProcessing && (
           <div className="mt-4 p-3 bg-primary/10 text-primary rounded-md text-sm flex items-center gap-2 animate-in slide-in-from-top-2">
             <Check className="w-4 h-4 shrink-0" />

@@ -4,6 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
+/**
+ * DashboardNavigation Component
+ *
+ * Main navigation tabs for the SCALENEO dashboard.
+ * Displays 4 tabs: Extraction, Results, Analytics, Export.
+ *
+ * Features:
+ * - Active tab highlighting based on current route
+ * - Responsive grid layout
+ * - Hover states for inactive tabs
+ */
 export function DashboardNavigation() {
   const pathname = usePathname();
 

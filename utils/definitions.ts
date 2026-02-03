@@ -1,3 +1,15 @@
+/**
+ * Score and Red Flag Definitions
+ *
+ * Defines clinical score thresholds and red flags for patient assessment.
+ *
+ * SCORE_DEFINITIONS: Contains interpretation thresholds for clinical scores
+ * (ODI, CSI, PCS, HADS, FABQ, SBT, WAI, PSFS) with color-coded severity levels.
+ *
+ * RED_FLAGS: Medical warning signs requiring immediate attention or referral.
+ * Categories: CRITICAL (emergency), HIGH (urgent), MODERATE (caution)
+ */
+
 export interface ScoreLevel {
   threshold: number;
   label: string;

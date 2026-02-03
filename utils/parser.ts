@@ -1,10 +1,17 @@
 /**
- * parser.ts
- * Moteur de parsing robuste pour les fiches bilan.
- * Utilise une approche déclarative (Configuration over Code).
+ * Patient Data Parser
+ *
+ * Robust parsing engine for clinical assessment forms.
+ * Uses a declarative configuration-over-code approach.
+ *
+ * Supports:
+ * - 18 sections of patient data
+ * - Checkbox detection (☒, ☑, ☐, [x], [ ])
+ * - NRS (pain scale) extraction
+ * - Multi-value fields with pipe separation
+ * - Automatic type conversion (boolean, number, string)
  */
 
-// --- DÉFINITION DES TYPES DE SORTIE (A adapter selon tes besoins exacts) ---
 export interface SectionData {
   [key: string]: string | string[] | boolean | number | null;
 }
@@ -30,9 +37,15 @@ export interface PatientData {
   section18: SectionData;
 }
 
-// --- CONFIGURATION DU MAPPING ---
-// Clé = Texte à chercher dans le fichier (insensible à la casse)
-// Valeur = Nom de la propriété dans l'objet JSON final
+/**
+ * Parser Configuration Mapping
+ *
+ * Maps search terms (found in text file) to property names in JSON output.
+ * Key = Text to search for in file (case-insensitive)
+ * Value = Property name in the final JSON object
+ *
+ * Example: "nom et prénom" in file -> "nomPatient" in JSON
+ */
 const PARSER_CONFIG: Record<string, Record<string, string>> = {
   "SECTION 1": {
     "nom et prénom": "nomPatient",
@@ -80,7 +93,6 @@ const PARSER_CONFIG: Record<string, Record<string, string>> = {
     "observations mécanismes": "observationsMecanismes"
   },
   "SECTION 6": {
-    // Mouvements
     "flexion avant": "flexionAvant",
     "flexion avant nrs": "flexionAvantNrs",
     "extension": "extension",
@@ -97,7 +109,6 @@ const PARSER_CONFIG: Record<string, Record<string, string>> = {
     "mobilité segmentaire pa nrs": "mobiliteSegmentaireNrs",
     "hanche": "hanche",
     "hanche nrs": "hancheNrs",
-    // Tests Neuro Spécifiques
     "slr droit": "slrDroit",
     "slr gauche": "slrGauche",
     "asymétrie slr": "asymetrieSlr",
@@ -119,7 +130,6 @@ const PARSER_CONFIG: Record<string, Record<string, string>> = {
     "hypersensibilité à la pression": "hypersensibilitePression",
     "zone lombaire": "zoneLombaire",
     "zone contrôle": "zoneControle",
-    // Endurance
     "sorensen": "testSorensen",
     "ito shirado": "testItoShirado",
     "core strength index": "coreStrengthIndex",
@@ -196,7 +206,7 @@ const PARSER_CONFIG: Record<string, Record<string, string>> = {
     "attentes réalistes": "attentesRealistes",
     "attentes réalistes détails": "detailAttentes",
     "patient anticipe guérison": "anticipationGuerison",
-    "yellow flags": "detailYellowFlags", // Direct mapping as no pipe separation
+    "yellow flags": "detailYellowFlags",
     "soutien social": "soutienSocial",
     "soutien social détails": "detailSoutien",
     "stresseurs": "stresseurs",
@@ -206,11 +216,11 @@ const PARSER_CONFIG: Record<string, Record<string, string>> = {
     "barrières anticipées": "barrieresTraitement"
   },
   "SECTION 13": {
-    "activités quotidiennes": "activitesQuotidiennes", // Checkboxes
+    "activités quotidiennes": "activitesQuotidiennes",
     "loisirs/sports": "loisirs",
     "activités antérieures": "activitesAnterieures",
     "actuellement": "activitesActuelles",
-    "temps assis": "tempsAssis", // Gestion multiple sur une ligne possible
+    "temps assis": "tempsAssis",
     "temps assis debout": "tempsDebout",
     "temps assis marche": "tempsMarche",
     "temps assis quotidien": "tempsAssisQuotidien",
@@ -280,24 +290,37 @@ const PARSER_CONFIG: Record<string, Record<string, string>> = {
   }
 };
 
-
+/**
+ * PatientParser Class
+ *
+ * Main parser for clinical assessment text files.
+ */
 export class PatientParser {
 
+  /**
+   * Cleans and converts raw extracted values to appropriate types
+   *
+   * Handles:
+   * - Bracket removal: "[value]" -> "value"
+   * - Placeholder detection: "à remplir" -> null
+   * - Boolean conversion: "oui"/"yes" -> true, "non"/"no" -> false
+   * - Numeric conversion with unit stripping ("45 kg" -> 45)
+   * - Preserves strings as fallback
+   *
+   * @param raw - Raw extracted value from text
+   * @returns Cleaned value as string, boolean, number, or null
+   */
   private static cleanValue(raw: string): string | boolean | number | null {
     if (!raw) return null;
     let val = raw.trim();
 
-    // Nettoyage des crochets vides ou placeholders
     if (val.startsWith("[") && val.endsWith("]")) val = val.slice(1, -1).trim();
     if (val === "" || val.toLowerCase().includes("à remplir")) return null;
 
-    // Gestion Booléens
     const lower = val.toLowerCase();
     if (["oui", "yes", "true", "vrai"].includes(lower)) return true;
     if (["non", "no", "false", "faux"].includes(lower)) return false;
 
-    // Tentative de conversion numérique propre
-    // On nettoie d'abord les suffixes communs pour "récupérer juste le nombre" comme demandé
     const cleanVal = val.toLowerCase().replace(/\s*(ans|kg|cm|ans|years|kg|kg.|cm|cm.)\s*$/, "").trim();
 
     const num = Number(cleanVal);
@@ -306,10 +329,24 @@ export class PatientParser {
     return val;
   }
 
+  /**
+   * Main parsing method
+   *
+   * Parses clinical assessment text file into structured PatientData object.
+   *
+   * Process:
+   * 1. Detects section headers (SECTION 1, SECTION 2, etc.)
+   * 2. Extracts key-value pairs ("Field Name: value")
+   * 3. Detects and processes checkboxes (☒, ☑, ☐)
+   * 4. Handles multi-value fields with pipe separators
+   * 5. Extracts NRS scores and additional sub-fields
+   *
+   * @param fileContent - Raw text content from the assessment file
+   * @returns Structured PatientData object with 18 sections
+   */
   public static parse(fileContent: string): PatientData {
     const result: Partial<PatientData> = {};
 
-    // Initialisation
     for (let i = 1; i <= 18; i++) {
       const key = `section${i}` as keyof PatientData;
       result[key] = {};
@@ -323,7 +360,6 @@ export class PatientParser {
       const trimmedLine = line.trim();
       if (!trimmedLine) continue;
 
-      // 1. DÉTECTION SECTION
       const sectionMatch = trimmedLine.match(/^={0,}\s*SECTION\s+(\d+)/i);
       if (sectionMatch) {
         currentSectionNum = sectionMatch[1];
@@ -337,26 +373,18 @@ export class PatientParser {
       const sectionKey = `section${currentSectionNum}` as keyof PatientData;
       const currentSection = result[sectionKey]!;
 
-      // 2. EXTRACTION CLÉ-VALEUR
       if (trimmedLine.includes(":")) {
-        // On cherche le séparateur principal.
-        // Dans "Flexion Avant (cm/grade): 45...", c'est le premier ":"
         const separatorIndex = trimmedLine.indexOf(":");
-        const rawKey = trimmedLine.substring(0, separatorIndex).trim().toLowerCase(); // ex: "flexion avant (cm/grade)"
-        const rawValue = trimmedLine.substring(separatorIndex + 1); // ex: " 45 cm / Grade 4 | (NRS 0-10): 7"
+        const rawKey = trimmedLine.substring(0, separatorIndex).trim().toLowerCase();
+        const rawValue = trimmedLine.substring(separatorIndex + 1);
 
-        // RECHERCHE INTELLIGENTE DE LA CLÉ
-        // On cherche quelle clé de config est contenue dans rawKey
-        // Ex: config "flexion avant" est contenu dans "flexion avant (cm/grade)"
         const foundKey = Object.keys(currentSectionConfig)
           .filter(configKey => rawKey.includes(configKey.toLowerCase()))
-          .sort((a, b) => b.length - a.length)[0]; // On prend le match le plus long
+          .sort((a, b) => b.length - a.length)[0];
 
         if (foundKey) {
           const targetProp = currentSectionConfig[foundKey];
 
-          // Détection et extraction des cases à cocher à l'intérieur de la valeur
-          // Exemple: "☒ Sourde | ☐ Aiguë | ☒ Brûlante | ..."
           const checkboxRegex = /(☒|☑|☐|\[x\]|\[ \])\s*([^☒☑☐\[\]|:]+)/g;
           const checkedLabels: string[] = [];
           let m: RegExpExecArray | null;
@@ -371,7 +399,6 @@ export class PatientParser {
           if (checkedLabels.length > 0) {
             currentSection[targetProp] = checkedLabels.length === 1 ? checkedLabels[0] : checkedLabels.join(", ");
           } else {
-            // Checkbox détectés mais aucun coché -> on vérifie si c'est vraiment "vide" (tous uncheck)
             const hasCheckboxes = /(☒|☑|☐|\[x\]|\[ \])/.test(rawValue);
             if (hasCheckboxes) {
               currentSection[targetProp] = null;
@@ -380,8 +407,6 @@ export class PatientParser {
             }
           }
 
-          // EXTRACTION DES CHAMPS SUPPLÉMENTAIRES (RESTORED)
-          // Supporte aussi les champs en début de ligne (sans |) si c'est une sous-clé immédiate
           const additionalFieldsRegex = /(?:^|\|)\s*([^:|]+)(?::\s*([^|]+))?/g;
           let fieldMatch: RegExpExecArray | null;
 
@@ -408,7 +433,6 @@ export class PatientParser {
                 k.toLowerCase().includes(contextSearchKey)
               );
 
-              // Helper pour extraire la valeur (texte ou checkbox)
               const extractValue = (text: string) => {
                 const checkboxRegexNested = /(☒|☑|☐|\[x\]|\[ \])\s*([^☒☑☐\[\]|:]+)/g;
                 const nestedLabels: string[] = [];
@@ -454,7 +478,6 @@ export class PatientParser {
         }
       }
 
-      // 3. CHECKBOXES (Section 9, 13...)
       else if (
         trimmedLine.startsWith("☐") ||
         trimmedLine.startsWith("☑") ||
@@ -465,13 +488,11 @@ export class PatientParser {
       ) {
         const lowerLine = trimmedLine.toLowerCase();
 
-        // On cherche si un mot clé de la ligne correspond à la config
         const foundKey = Object.keys(currentSectionConfig).find(k => lowerLine.includes(k));
 
         if (foundKey) {
           const targetProp = currentSectionConfig[foundKey];
 
-          // Extraction des labels cochés sur la ligne
           const checkboxRegex = /(☒|☑|☐|\[x\]|\[ \])\s*([^☒☑☐\[\]|:]+)/g;
           const allMatches = [...trimmedLine.matchAll(checkboxRegex)];
           const isSingleCheckbox = allMatches.length === 1;
@@ -483,19 +504,15 @@ export class PatientParser {
             const isChecked = marker === "☒" || marker === "☑" || marker.toLowerCase() === "[x]";
 
             if (isSingleCheckbox) {
-              // Logique "Elément Seul" (Section 9 etc) : on capture tout (Oui/Non) et on nettoie le titre
-              // On retire le titre (foundKey) du label pour éviter la répétition dans l'UI
               if (foundKey) {
                 const keyRegex = new RegExp(foundKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
                 label = label.replace(keyRegex, "").trim();
               }
 
               const prefix = isChecked ? "Oui" : "Non";
-              // Si label reste vide après nettoyage (ex: juste le titre), on garde juste "Oui" ou "Non"
               const finalValue = label ? `${prefix} | ${label}` : prefix;
               checkedLabels.push(finalValue);
             } else {
-              // Logique Liste Multiple (Section 13 etc) : on garde seulement si coché
               if (isChecked && label) checkedLabels.push(label);
             }
           }
@@ -503,51 +520,36 @@ export class PatientParser {
           if (checkedLabels.length > 0) {
             currentSection[targetProp] = checkedLabels.length === 1 ? checkedLabels[0] : checkedLabels.join(", ");
           } else {
-            // Pas de label trouvé coché/traité
-            // Si c'est un Single Checkbox Unchecked, on l'a déjà capturé comme "Non | ..." donc on ne passe pas ici (sauf si bug)
-            // Pour liste multiple sans coche -> null (N/A)
             currentSection[targetProp] = null;
           }
 
-          // EXTRACTION DES CHAMPS SUPPLÉMENTAIRES APRÈS LES CASES À COCHER
-          // Recherche de champs comme "Secteur:", "Localisation:" après les cases
-          // Supporte aussi les champs sans ":" comme "localisation" après "|"
-          // MODIFICATION: Supporte aussi les champs en début de ligne (sans |) si c'est une sous-clé immédiate
           const additionalFieldsRegex = /(?:^|\|)\s*([^:|]+)(?::\s*([^|]+))?/g;
           let fieldMatch: RegExpExecArray | null;
 
           while ((fieldMatch = additionalFieldsRegex.exec(trimmedLine)) !== null) {
             const fieldName = (fieldMatch[1] || "").trim().toLowerCase();
             const rawFieldValue = (fieldMatch[2] || "").trim();
-            // ...
 
             if (fieldName) {
               const lowerField = fieldName.toLowerCase();
               let normalizedField = lowerField;
 
-              // Normalisation des mots-clés communs pour éviter les problèmes de format (ex: "(NRS 0-10)")
-              if (lowerField.includes("nrs") || lowerField.includes("score")) normalizedField = "nrs"; // "nrs" ou "score" -> nrs (flexion avant nrs)
+              if (lowerField.includes("nrs") || lowerField.includes("score")) normalizedField = "nrs";
               if (lowerField.includes("localisation")) normalizedField = "localisation";
-              if (lowerField.includes("détail")) normalizedField = "détails"; // Uniformiser avec la config
+              if (lowerField.includes("détail")) normalizedField = "détails";
               if (lowerField.includes("met")) normalizedField = "met";
               if (lowerField.includes("debout")) normalizedField = "debout";
               if (lowerField.includes("marche")) normalizedField = "marche";
 
-              // CONFIGURATION SPECIALE POUR "SCORES" vs "NRS"
-              // Si la config attend "scores" (ex: PSFS), on garde "scores"
               if (lowerField.includes("scores")) normalizedField = "scores";
 
-              // 1. RECHERCHE CONTEXTUELLE : Clé principale + Nom du champ
-              // Ex: "flexion avant" + "nrs" -> "flexion avant nrs"
               const contextSearchKey = `${foundKey} ${normalizedField}`.toLowerCase();
 
               const preciseContextKey = Object.keys(currentSectionConfig).find(k =>
                 contextSearchKey === k.toLowerCase() ||
-                // Pour "yellow flags détails" vs "yellow flags" + "détails"
                 k.toLowerCase().includes(contextSearchKey)
               );
 
-              // Helper pour extraire la valeur (texte ou checkbox)
               const extractValue = (text: string) => {
                 const checkboxRegexNested = /(☒|☑|☐|\[x\]|\[ \])\s*([^☒☑☐\[\]|:]+)/g;
                 const nestedLabels: string[] = [];
@@ -563,7 +565,6 @@ export class PatientParser {
                 }
 
                 if (foundCheckbox) {
-                  // Si on a détecté des checkboxes mais AUCUNE n'est cochée -> on retourne null (N/A)
                   if (nestedLabels.length === 0) return null;
                   return nestedLabels.length === 1 ? nestedLabels[0] : nestedLabels.join(", ");
                 }
@@ -585,7 +586,6 @@ export class PatientParser {
                 if (additionalFieldKey) {
                   const additionalProp = currentSectionConfig[additionalFieldKey];
                   if (additionalProp !== targetProp) {
-                    // Si rawFieldValue est vide (ex: marqueur seul), on met true, sinon on extrait
                     currentSection[additionalProp] = rawFieldValue ? extractValue(rawFieldValue) : true;
                   }
                 }
@@ -595,7 +595,6 @@ export class PatientParser {
         }
       }
 
-      // 3. CHECKBOXES (Section 9, 13...)
       else if (
         trimmedLine.startsWith("☐") ||
         trimmedLine.startsWith("☑") ||
@@ -605,13 +604,11 @@ export class PatientParser {
       ) {
         const lowerLine = trimmedLine.toLowerCase();
 
-        // On cherche si un mot clé de la ligne correspond à la config
         const foundKey = Object.keys(currentSectionConfig).find(k => lowerLine.includes(k));
 
         if (foundKey) {
           const targetProp = currentSectionConfig[foundKey];
 
-          // Extraction des labels cochés sur la ligne
           const checkboxRegex = /(☒|☑|☐|\[x\]|\[ \])\s*([^☒☑☐\[\]|:]+)/g;
           const checkedLabels: string[] = [];
           let m: RegExpExecArray | null;
@@ -625,7 +622,6 @@ export class PatientParser {
           if (checkedLabels.length > 0) {
             currentSection[targetProp] = checkedLabels.length === 1 ? checkedLabels[0] : checkedLabels;
           } else {
-            // Pas de label trouvé, on marque la présence générale
             currentSection[targetProp] = true;
           }
         }
