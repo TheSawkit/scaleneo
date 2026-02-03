@@ -3,6 +3,7 @@ import { PatientData } from "@/types/patient";
 import { interpretScore } from "@/utils/calculations";
 import { SCORE_DEFINITIONS } from "@/utils/definitions";
 import { cn } from "@/lib/utils";
+import { StableBold } from "@/components/ui/StableBold";
 
 interface ScoreSummaryProps {
   data: PatientData;
@@ -76,7 +77,7 @@ export function ScoreSummary({ data }: ScoreSummaryProps) {
             <div
               key={score.key}
               className={cn(
-                "bg-card p-3 rounded border-l-4 shadow-sm border border-border",
+                "group bg-card p-3 rounded border-l-4 transition-all duration-200 shadow-sm border border-border hover:shadow-md hover:border-l-4",
                 score.interp?.color === "red"
                   ? "border-l-destructive"
                   : score.interp?.color === "yellow"
@@ -84,13 +85,18 @@ export function ScoreSummary({ data }: ScoreSummaryProps) {
                     : "border-l-green-500",
               )}
             >
-              <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">
-                {score.label}
-              </div>
+              <StableBold
+                text={score.label}
+                className="text-[10px] font-bold text-muted-foreground uppercase mb-1"
+                hoverClassName="group-hover:font-extrabold group-hover:text-card-foreground"
+              />
+
               <div className="text-xl font-bold text-foreground leading-none mb-2">
                 {score.value}
               </div>
-              <div
+
+              <StableBold
+                text={score.interp?.label || ""}
                 className={cn(
                   "text-[10px] italic font-medium leading-tight",
                   score.interp?.color === "red"
@@ -99,9 +105,8 @@ export function ScoreSummary({ data }: ScoreSummaryProps) {
                       ? "text-yellow-600"
                       : "text-green-600",
                 )}
-              >
-                {score.interp?.label}
-              </div>
+                hoverClassName="group-hover:font-extrabold"
+              />
             </div>
           ))}
         </div>
