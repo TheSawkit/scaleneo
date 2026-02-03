@@ -7,13 +7,13 @@
 [![Recharts](https://img.shields.io/badge/Recharts-3.x-22B5BF?style=for-the-badge&logo=recharts&logoColor=white)](https://recharts.org/)
 [![License](https://img.shields.io/badge/License-Private-red?style=for-the-badge)](LICENSE)
 
-[English](#english) | [Français](#français)
+[🇺🇸 English](#english) | [🇫🇷 Français](#français)
 
 ---
 
-`<a name="english"></a>`
+<a name="english"></a>
 
-## 🇺🇸 English Version
+## 🇺🇸 English
 
 **SCALENEO** is a professional clinical tool designed for physiotherapists and clinicians to track, analyze, and visualize patient data for Low Back Pain (LBP) assessments. It automates data extraction from clinical reports and provides longitudinal analytics to improve patient follow-up and clinical decision-making.
 
@@ -82,9 +82,9 @@
 
 ---
 
-`<a name="français"></a>`
+<a name="français"></a>
 
-## 🇫🇷 Version Française
+## 🇫🇷 Français
 
 **SCALENEO** est un outil clinique professionnel conçu pour les kinésithérapeutes et les cliniciens afin de suivre, analyser et visualiser les données des patients pour les bilans de lombalgie (LBP). Il automatise l'extraction de données à partir de rapports cliniques et fournit des analyses longitudinales pour améliorer le suivi des patients et la prise de décision clinique.
 
