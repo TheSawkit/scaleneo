@@ -70,7 +70,7 @@ export function SectionCard({ sectionKey, data }: SectionCardProps) {
           {sectionTitle}
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-4 space-y-3">
+      <CardContent className="p-4 space-y-2">
         {displayKeys.map((key) => {
           const rawValue = data[key];
 
@@ -94,7 +94,7 @@ export function SectionCard({ sectionKey, data }: SectionCardProps) {
           }
 
           return (
-            <div key={key} className="flex justify-between items-start text-sm group hover:border-primary hover:border-b-2 hover:border-t-2">
+            <div key={key} className="flex justify-between items-start text-sm group border-y-2 border-transparent p-1 rounded-xs transition-all hover:border-primary">
               <span className="text-muted-foreground font-medium mr-4 min-w-[40%]">
                 {label}
               </span>
