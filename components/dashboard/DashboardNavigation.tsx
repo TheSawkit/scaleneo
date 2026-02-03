@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { StableBold } from "@/components/ui/StableBold";
 
 /**
  * DashboardNavigation Component
@@ -35,13 +36,18 @@ export function DashboardNavigation() {
               key={tab.id}
               href={tab.href}
               className={cn(
-                "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-3 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+                "group inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-3 text-sm font-medium border border-transparent ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
                 isActive
-                  ? "bg-background text-foreground shadow-sm"
-                  : "hover:bg-background/50 hover:text-foreground text-muted-foreground",
+                  ? "bg-background/80 backdrop-blur-md border-foreground/10 text-foreground shadow-md"
+                  : "hover:bg-background/50 hover:backdrop-blur-md hover:border-foreground/10 hover:text-foreground hover:shadow-md text-muted-foreground",
               )}
             >
-              {tab.name}
+              <StableBold
+                text={tab.name}
+                hoverClassName={cn(
+                  isActive ? "font-bold" : "group-hover:font-bold group-hover:text-foreground"
+                )}
+              />
             </Link>
           );
         })}
