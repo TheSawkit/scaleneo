@@ -168,11 +168,36 @@ export function FileUpload({ onDataParsed }: FileUploadProps) {
   return (
     <Card className="relative h-full">
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          📥 Chargement Fichier
-          <span className="text-xs font-normal text-muted-foreground">
-            (.txt ou .json)
-          </span>
+        <CardTitle className="text-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            📥 Chargement Fichier
+            <span className="text-xs font-normal text-muted-foreground">
+              (.txt ou .json)
+            </span>
+          </div>
+          <a
+            href="/documents/FICHE_BILAN_SCALENEO_TEMPLATE.txt"
+            download="FICHE_BILAN_SCALENEO_TEMPLATE.txt"
+            className="text-sm font-normal text-primary hover:text-primary/80 flex items-center gap-1.5 transition-colors"
+            title="Télécharger le modèle de fiche bilan"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Télécharger modèle
+          </a>
         </CardTitle>
       </CardHeader>
       <CardContent>

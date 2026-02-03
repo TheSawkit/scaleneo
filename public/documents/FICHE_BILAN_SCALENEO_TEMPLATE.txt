@@ -1,0 +1,296 @@
+================================================================================
+FICHE BILAN SCALENEO
+
+================================================================================
+SECTION 1: INFORMATION ADMINISTRATIVE
+================================================================================
+
+Nom et prénom du Patient: [À remplir]
+Année de Naissance: [À remplir]
+Age: [À remplir]
+Sexe: [À remplir: M ou F]
+Profession: ☐ Manuel | ☐ Non-manuel | ☐ Hybride | ☐ Secteur: [À remplir]
+
+Kiné Examinateur: [À remplir]
+Date Bilan: [À remplir]
+ID Patient: [À remplir]
+ID Bilan: [À remplir]
+
+================================================================================
+SECTION 2: DONNÉES ANTHROPOMÉTRIQUES
+================================================================================
+
+Poids (kg): [À remplir]
+Taille (cm): [À remplir]
+IMC Calculé: [À remplir ou laisser blanc pour auto-calcul]
+
+================================================================================
+SECTION 3: PATHOLOGIE LOMBAIRE
+================================================================================
+
+Antécédents LBP (Oui/Non): [À remplir]
+Episode Initial: [À remplir]
+Traumatisme,progressif ou spontané : [À remplir]
+Récidive (Oui/Non): [À remplir]
+Pire Episode: [À remplir]
+Durée Totale LBP (mois): [À remplir]
+Type LBP (Aigu/Subaigu/Chronique): [À remplir]
+
+
+================================================================================
+SECTION 4: SYMPTÔMES - INTENSITÉ DOULEUR (NRS 0-10)
+================================================================================
+
+NRS Douleur au Repos: [À remplir: 0-10]
+NRS Douleur à l'Activité: [À remplir: 0-10]
+NRS Douleur Maximum: [À remplir: 0-10]
+
+Horaire Douleur (Matin/Midi/Soir/Nuit): [À remplir]
+Variation Journalière: [À remplir]
+Facteurs Aggravants: [À remplir]
+Facteurs Soulageants: [À remplir]
+Évolution : [À remplir]
+
+================================================================================
+SECTION 5: MÉCANISMES DE DOULEUR (Cocher: 1=Oui, 0=Non)
+================================================================================
+
+Douleur Articulaire: [À remplir: 0 ou 1]
+Douleur Myofasciale: [À remplir: 0 ou 1]
+Douleur Neurologique: [À remplir: 0 ou 1]
+Sensibilisation Centrale (nociceptive, neuropathique ou nociplastique): [À remplir]
+Déficit Sensorimotor: [À remplir: 0 ou 1]
+
+Caractère sensations: ☐ Sourde | ☐ Aiguë | ☐ Brûlante | ☐ Piquante | ☐ Irradiante | ☐ Engourdie
+
+
+Observations Mécanismes: [À remplir]
+
+================================================================================
+SECTION 6: TESTS FONCTIONNELS - MOBILITÉ LOMBAIRE - TESTS NEURODYNAMIQUES - SIGNES NEUROLOGIQUES 
+================================================================================
+
+Flexion Avant (cm/grade): [À remplir] / [À remplir] | (NRS 0-10):[À remplir]
+Extension (cm/grade): [À remplir] / [À remplir] | (NRS 0-10):[À remplir]
+Inclinaison Latérale Droit (cm/grade): [À remplir] / [À remplir] | (NRS 0-10):[À remplir]
+Inclinaison Latérale Gauche (cm/grade): [À remplir] / [À remplir] | (NRS 0-10):[À remplir]
+Rotation droite(degré/grade):[À remplir] / [À remplir] | (NRS 0-10):[À remplir]
+Rotation Gauche(degré/grade):[À remplir] / [À remplir] | (NRS 0-10):[À remplir]
+Combinaison de mouvements (mouvements/grade) : [À remplir] | (NRS 0-10):[À remplir]
+Mobilité segmentaire PA (étage/grade): [À remplir] | (NRS 0-10):[À remplir]
+Hanche (mouvements/grade): [À remplir] | (NRS 0-10):[À remplir]
+
+SLR Droit (degrés): [À remplir]
+SLR Gauche (degrés): [À remplir]
+Asymétrie SLR: [Auto-calc: |SLR_D - SLR_G|]
+Slump test (degrés): ☐ Complet ☐ Limité | ☐ Modif cerv ☐ Modif à distance | ☐ Asymétrie   
+PKB (degrés): ☐ Complet ☐ Limité | ☐ Modif cerv ☐ Modif à distance | ☐ Asymétrie
+
+Force musculaire (MRC scale 0-5): [À remplir si indiqué]	
+Réflexes (Oui/Non): [À remplir si indiqué]
+Sensation: ☐ Piquer/Toucher | ☐ Sensibilité fine| ☐ Chaud/Froid | Localisation: [À remplir si indiqué]  
+Profil sensoriel: ☐ Normal | ☐ Hypoesthésie | ☐ Allodynie | ☐ Hyperalgésie
+Signes méningés	☐ Négatifs | ☐ Kernig ☐ Brudzinski 
+
+Tension musculaire: ☐ Normale | ☐ Légère | ☐ Importante
+Trigger points	☐ Absent | ☐ Présent | Localisation: [À remplir]
+Hypersensibilité à la pression (Oui/Non): Zone lombaire [À remplir]  | Zone contrôle [À remplir] 
+Spasme musculaire: ☐ Absent | ☐ Présent | ☐ Fatiguabilité | Localisation: [À remplir]
+ 
+Sorensen (secondes): [À remplir si indiqué]
+Ito Shirado (secondes): [À remplir si indiqué]
+Core Strength Index: [Auto-calc: (Ito / Sorensen)]
+Side plank D/G (secondes): [À remplir si indiqué] / [À remplir si indiqué]  
+CSM (Plank, Pelvic tilt, Bridge,...): [À remplir si indiqué]
+
+================================================================================
+SECTION 7: QUESTIONNAIRES VALIDÉS - SCORES [À remplir si indiqué]
+================================================================================
+SBT (STarT Back Screening Tool, 0-9): [À remplir]
+  Interprétation:[Auto-calc: Low (0-3), Moderate (4-9)]
+
+CSI Score (Central Sensitization Inventory, 0-100): [À remplir]
+  Interprétation: [Auto-calc: Low (<30), Moderate (30-50), High (>50)]
+
+ODI Score (Oswestry Disability Index, 0-100): [À remplir]
+  Interprétation: [Auto-calc: Minimal (<20), Mild (20-40), Moderate (40-60), Severe (60-80), Very Severe (>80)]
+
+PCS Score (Pain Catastrophizing Scale, 0-52): [À remplir]
+  Interprétation: [Auto-calc: Low (<17), Moderate (17-34), High (>34)]
+
+HADS Score Anxiété (0-21): [À remplir]
+HADS Score Dépression (0-21): [À remplir]
+
+FABQ Score Travail (0-100): [À remplir]
+FABQ Score Activité (0-100): [À remplir]
+
+WAI Score (Work Ability Index, 0-100): 
+IPAQ (International Physical Activity): ☐ Sédentaire ☐ Modéré ☐ Vigoureux | MET(min/week): [À remplir]
+PSFS (Patient-Specific Functional Scale, 0-10) Activités limitantes: [À remplir]/[À remplir] | Scores: [À remplir: 0-10]/[À remplir: 0-10]
+
+SF-36 ou EQ-5D (Qualité de vie): [À remplir]
+
+Autres Questionnaires: [À remplir]
+
+================================================================================
+SECTION 8: DRAPEAUX ROUGES & PRÉCAUTIONS
+================================================================================
+
+Drapeaux Rouges Détectés (Oui/Non): [À remplir]
+  Si Oui, lesquels: [À remplir]
+
+Contre-Indications: [À remplir]
+Allergies: [À remplir]
+Médications Pertinentes: [À remplir]
+Examen médicaux : [À remplir]
+
+Instabilité rachidienne: ☐ Suspectée ☐ Présente ☐ À vérifier | Signes: [À remplir]
+Limitation traitement manuel: ☐ Manipulation contre-indiquée | ☐ Mobilisation légère seulement | ☐ Pas de limite
+Anticoagulation/Trouble hémorragique: ☐ Oui ☐ Non | Traitement: [À remplir]
+Grossesse: ☐ N/A ☐ Oui (trimestre:[À remplir]) | Adaptations: [À remplir]
+État général: ☐ Stable ☐ Consultation médicale recommandée
+
+
+
+================================================================================
+SECTION 9: Mécanismes douleur 
+================================================================================
+
+ ☐ Motif articulaire
+ ☐ Motif myofascial
+ ☐ Motif neural
+ ☐ Sensibilisation centrale
+ ☐ Contrôle sensorimoteur
+
+================================================================================
+SECTION 10: PLAN DE GESTION & RECOMMANDATIONS
+================================================================================
+
+Fréquence Thérapie (séances/semaine): [À remplir: nombre]
+
+Thérapie Manuelle (Oui/Non): [À remplir: 1 ou 0]
+  Types TM si Oui: [À remplir]
+
+Thérapie par Exercice (Oui/Non): [À remplir: 1 ou 0]
+  Types Exercices: [À remplir]
+
+Thérapie par Neurodynamique (Oui/Non): [À remplir: 1 ou 0]
+  Types Exercices: [À remplir]
+
+Éducation Patient (Oui/Non): [À remplir: 1 ou 0]
+  Sujets Éducation: [À remplir]
+
+Modalités Supplémentaires: [À remplir]
+
+================================================================================
+SECTION 11: Perspectives et croyances du patient
+================================================================================
+Compréhension du diagnostic par le patient: ☐ Oui ☐ Partiellement ☐ Non | Inquiétudes: [À remplir]
+Perception de gravité:	☐ Bénigne ☐ Modérée ☐ Grave ☐ Catastrophe
+Auto-efficacité face à la douleur: ☐ Faible ☐ Modérée ☐ Bonne | Croyance contrôle: [À remplir]
+
+================================================================================
+SECTION 12: PRONOSTIC
+================================================================================
+
+Durée Estimée Traitement: [À remplir]: Courte (2-4 sem), Modérée (4-8 sem), Longue (8-12 sem), Très Longue (>12 sem)
+
+Nombre de Séances Espérées: [À remplir]
+
+Facteurs Pronostiques Positifs: [À remplir]
+Facteurs Pronostiques Négatifs: [À remplir]
+
+Objectifs à Court Terme (2-4 sem): [À remplir]
+Objectifs à Long Terme (8-12 sem): [À remplir]
+Attentes réalistes: ☐ Oui ☐ Partiellement ☐ Non | Détail: [À remplir]
+Patient anticipe guérison: ☐ Complète ☐ Partielle ☐ Chronique
+
+Yellow Flags : Détails: [À remplir]
+Soutien social	☐ Bon ☐ Modéré ☐ Faible | Détail: [À remplir] 
+Stresseurs identifiés ☐ Travail ☐ Famille ☐ Financier  Autre: [À remplir]
+
+Point de réévaluation: Semaine: [À remplir: nombres] | Critères changement: [À remplir]
+Besoin orientation spécialisée	☐ Non ☐ Oui | ☐ Psychologue ☐ Médecin Autre: [À remplir]
+Barrières anticipées au traitement: [À remplir]
+
+================================================================================
+SECTION 13: Activités et participation
+================================================================================
+
+Activités quotidiennes limitées: ☐ Marche ☐ Assise ☐ Levage ☐ Escaliers ☐ Toilette ☐ Sexualité ☐ Sommeil
+Loisirs/Sports limitées: Activités antérieures: [À remplir] | Actuellement: [À remplir]
+Temps assis/debout toléré (minutes):	Assis: [À remplir] | Debout: [À remplir] | Marche: [À remplir]
+Comportement sédentaire (heures): Temps assis quotidien: [À remplir] | Écran: [À remplir]
+
+Statut professionnel: ☐ Actif | ☐ Congé maladie | ☐ Incapacité | ☐ Arrêt | ☐ Sans activité/retraité
+Jours d'absence travail: Derniers 3 mois: [À remplir] | 6 mois: [À remplir]
+Limitations professionnelles: Tâches impossibles: [À remplir] | Tâches difficiles: [À remplir]
+Attentes Retour au Travail : Délai anticipé: [À remplir] | Confiance: ☐ Élevée ☐ Modérée ☐ Faible
+Modifications poste possibles:	☐ Oui ☐ Non | Type: [À remplir]
+
+================================================================================
+SECTION 14: Facteurs contribuants
+================================================================================
+
+Défauts posturaux identifiés: ☐ Hyperlordose ☐ Dos plat ☐ Scoliose ☐ Tête antépulsé ☐ Bassin antéversé
+Facteurs biomécaniques:	☐ Charge de travail ☐ Posture ☐ Mouvement répété ☐ Vibrations Autre: [À remplir]
+Facteurs de style de vie: ☐ Tabac ☐ Alcool ☐ Obésité ☐ Inactivité ☐ Sommeil ☐ Nutrition
+Facteurs hormonaux/métaboliques: ☐ Ménopause ☐ Diabète ☐ Thyroïde ☐ Inflammation  Autre: [À remplir]
+Contexte de travail ergonomique: Poste optimisé: ☐ Oui ☐ Non | Recommandations: [À remplir]
+
+Facteurs psychosociaux majeurs:	☐ Peur-évitement ☐ Catastrophisme ☐ Dépression ☐ Anxiété ☐ Stress
+Système santé/Culture:	Conception biopsychosociale: ☐ Bien comprise ☐ À développer
+Attentes culturelles de traitement: Attente guérison rapide: ☐ Oui ☐ Non | Approche préférée: [À remplir]
+Compliance anticipée: ☐ Bonne ☐ Modérée ☐ À questionner | Barrières: [À remplir]
+
+================================================================================
+SECTION 15: Satisfaction
+================================================================================
+
+PGIC (Patient Global Impression of Change, 0-7): Score: [À remplir] | État: ☐ Guéri ☐ Mieux ☐ Pareil ☐ Pire
+Treatment Satisfaction	Score (0-100) : [À remplir] | Relation thérapeute: ☐ Très bonne ☐ Bonne ☐ À améliorer
+GAS (Goal Attainment Scaling):	Progression objectives: ☐ Non atteint ☐ Partiellement ☐ Atteint
+
+================================================================================
+SECTION 16: OBSERVATIONS CLINIQUES & NOTES
+================================================================================
+
+Résumé Clinique: [À remplir]
+
+Observations globales: [À remplir]
+
+Impression Générale: [À remplir]
+
+Notes Supplémentaires: [À remplir]
+
+Plan de traitement recommandé: [À remplir]
+
+================================================================================
+SECTION 17: Hypothèse de travail (SCALENEO)
+================================================================================
+
+1. PATHOLOGY: [À remplir]
+2. SOURCES OF SYMPTOMS: [À remplir]
+3. PAIN TYPE: [À remplir]
+4. IMPAIRMENTS: [À remplir]
+5. PAIN MECHANISMS: [À remplir]
+6. PRECAUTIONS: [À remplir]
+7. PATIENTS' PERSPECTIVES: [À remplir]
+8. ACTIVITY & PARTICIPATION: [À remplir]
+9. CONTRIBUTING FACTORS: [À remplir]
+10. MANAGEMENT & PROGNOSIS: [À remplir]
+
+================================================================================
+SECTION 18: CONTRÔLE QUALITÉ
+================================================================================
+
+Confiance Extraction (estimée %): [À remplir ou laisser à v3]
+Données Complètes (Oui/Non): [À remplir]
+Révision Manuelle Requise (Oui/Non): [À remplir]
+
+Modifié Par: [Signature/Initiales kiné]
+Date Modification: [Date]
+
+================================================================================
+FIN FICHE BILAN
+================================================================================
