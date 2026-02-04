@@ -45,7 +45,7 @@
 
 ### 🛠 Tech Stack
 
-- **Framework**: [Next.js 15+](https://nextjs.org/) (App Router, Turbopack)
+- **Framework**: [Next.js 16+](https://nextjs.org/) (App Router, Turbopack)
 - **UI Components**: [Radix UI](https://www.radix-ui.com/) & [Lucide React](https://lucide.dev/)
 - **Styling**: [Tailwind CSS 4.0](https://tailwindcss.com/)
 - **Charts**: [Recharts](https://recharts.org/)
@@ -116,7 +116,7 @@
 
 ### 🛠 Stack Technique
 
-- **Framework** : [Next.js 15+](https://nextjs.org/) (App Router, Turbopack)
+- **Framework** : [Next.js 16+](https://nextjs.org/) (App Router, Turbopack)
 - **Composants UI** : [Radix UI](https://www.radix-ui.com/) & [Lucide React](https://lucide.dev/)
 - **Styling** : [Tailwind CSS 4.0](https://tailwindcss.com/)
 - **Graphiques** : [Recharts](https://recharts.org/)
